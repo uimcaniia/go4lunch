@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF5722</color>
+    <color name="colorPrimaryDark">#C20F01</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="colorError">#FF5252</color>
+
+    <color name="colortopBarLog">#83000000</color>
+    <color name="colorBgDrawerView">#D56A45</color>
+
+    <!-- Bottom Navigation View -->
+    <color name="colorFocusNavBar">#FF5722</color>
+    <color name="colorBlurdNavBar">#000000</color>
+    <color name="colorBgNavBar">#FFFFFF</color>
+</resources>

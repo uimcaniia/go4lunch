@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/profile_activity_your_lunch"
+            android:textColor="@color/colorBgNavBar"
+            android:icon="@drawable/ic_restaurant_menu_24px"
+            android:title="YOUR LUNCH" />
+        <item
+            android:id="@+id/profile_activity_setting"
+            android:icon="@drawable/ic_settings_24px"
+            android:textColor="@color/colorBgNavBar"
+            android:title="SETTINGS" />
+        <item
+            android:id="@+id/profile_activity_logout"
+            android:textColor="@color/colorBgNavBar"
+            android:icon="@drawable/ic_power_settings_new_24px"
+            android:title="LOGOUT" />
+    </group>
+
+</menu>
