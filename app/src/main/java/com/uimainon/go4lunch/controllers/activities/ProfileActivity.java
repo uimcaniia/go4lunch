@@ -145,7 +145,6 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             //Get email & username from Firebase
             email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
             username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
-
         }
     }
     // 5 - Show fragment according an Identifier

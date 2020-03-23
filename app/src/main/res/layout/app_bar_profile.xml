@@ -20,31 +20,6 @@
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/ToolBarStyle" >
 
-<!--                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/text_toolbar_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_toLeftOf="@+id/searchBtn"
-                        android:gravity="center_vertical"
-                        android:textSize="25sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/white"
-                        android:text="Hello World"/>
-
-                    <ImageView
-                        android:id="@+id/searchBtn"
-                        android:layout_width="28dp"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="20dp"
-                        android:src="@drawable/ic_search_24px" />
-
-                </RelativeLayout>-->
             </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.AppBarLayout>
