@@ -37,7 +37,6 @@
     <string name="check_box_is_mentor">Etes-vous un mentor ?</string>
 
 
-
     <!-- BOTTOM NAVIGATION VIEW -->
     <string name="bottom_navigation_menu_map">Map View</string>
     <string name="bottom_navigation_menu_list">List View</string>
@@ -60,5 +59,6 @@
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

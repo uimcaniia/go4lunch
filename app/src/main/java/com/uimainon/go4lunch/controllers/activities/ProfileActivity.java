@@ -24,11 +24,12 @@ import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.base.BaseActivity;
 import com.uimainon.go4lunch.controllers.fragments.ListPeople;
 import com.uimainon.go4lunch.controllers.fragments.ListRestaurants;
-import com.uimainon.go4lunch.controllers.fragments.MapView;
+import com.uimainon.go4lunch.controllers.fragments.MapViewFragment;
 import com.uimainon.go4lunch.controllers.fragments.SettingFragment;
 import com.uimainon.go4lunch.controllers.fragments.YourLunch;
 
 public class ProfileActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+
 
     //FOR FRAGMENTS
     // 1 - Declare fragment handled by Navigation Drawer
@@ -61,11 +62,13 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+
         this.configureToolBar();
         this.updateUIWhenCreating();
         this.configureDrawerLayout();
         this.configureNavigationView();
+        // 2 - Show First Fragment
+        this.showFirstFragment();
     }
 
     @Override
@@ -102,7 +105,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
         return true;
     }
     // 1 - Configure Toolbar
-    private void configureToolBar(){
+   private void configureToolBar(){
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
@@ -141,15 +144,14 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                 //Get picture URL from Firebase
                 if (this.getCurrentUser().getPhotoUrl() != null) {
                     imageProfil = this.getCurrentUser().getPhotoUrl();
-                }
-            //Get email & username from Firebase
+                }//Get email & username from Firebase
             email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
             username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
         }
     }
-    // 5 - Show fragment according an Identifier
 
-    private void showFragment(int fragmentIdentifier){
+
+    private void showFragment(int fragmentIdentifier){ // 5 - Show fragment according an Identifier
         switch (fragmentIdentifier){
             case FRAGMENT_LUNCH :
                 this.showYourLunchFragment();
@@ -170,20 +172,28 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                 break;
         }
     }
+    // 1 - Show first fragment when activity is created
+    private void showFirstFragment(){
+        Fragment visibleFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if (visibleFragment == null){
+            // 1.1 - Show News Fragment
+            this.showFragment(FRAGMENT_MAP);
+            // 1.2 - Mark as selected the menu item corresponding to NewsFragment
+            this.navigationView.getMenu().getItem(2).setChecked(true);
+        }
+    }
 
     // 4 - Create each fragment page and show it
-
     private void showYourLunchFragment(){
         if (this.fragmentYourLunch == null) this.fragmentYourLunch = YourLunch.newInstance();
         this.startTransactionFragment(this.fragmentYourLunch);
     }
-
     private void showSettingFragment(){
         if (this.fragmentSetting == null) this.fragmentSetting = SettingFragment.newInstance();
         this.startTransactionFragment(this.fragmentSetting);
     }
     private void showMapViewFragment(){
-        if (this.fragmentMapView == null) this.fragmentMapView = MapView.newInstance();
+        if (this.fragmentMapView == null) this.fragmentMapView = MapViewFragment.newInstance();
         this.startTransactionFragment(this.fragmentMapView);
     }
     private void showListRestaurantFragment(){

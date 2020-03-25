@@ -11,8 +11,8 @@ import com.uimainon.go4lunch.R;
 
 public class ListPeople extends Fragment {
 
-    public static MapView newInstance() {
-        MapView fragment = new MapView();
+    public static ListPeople newInstance() {
+        ListPeople fragment = new ListPeople();
         return fragment;
     }
 

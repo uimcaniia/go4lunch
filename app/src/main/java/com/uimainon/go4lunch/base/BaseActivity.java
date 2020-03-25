@@ -14,7 +14,7 @@ import com.uimainon.go4lunch.R;
 
 import butterknife.ButterKnife;
 
-public abstract class BaseActivity  extends AppCompatActivity {
+public abstract class BaseActivity  extends AppCompatActivity {//AppCompatActivity
     // --------------------
     // LIFE CYCLE
     // --------------------
@@ -24,6 +24,7 @@ public abstract class BaseActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(this.getFragmentLayout());
         ButterKnife.bind(this); //Configure Butterknife
+
     }
 
     public abstract int getFragmentLayout();

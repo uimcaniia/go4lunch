@@ -3,41 +3,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_map_view">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.uimainon.go4lunch.controllers.activities.ui.home.HomeFragment"
+        android:id="@+id/nav_list_people"
+        android:name="com.uimainon.go4lunch.controllers.fragments.ListPeople"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_list_people" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.uimainon.go4lunch.controllers.activities.ui.gallery.GalleryFragment"
+        android:id="@+id/nav_list_restaurant"
+        android:name="com.uimainon.go4lunch.controllers.fragments.ListRestaurants"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_list_restaurant" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.uimainon.go4lunch.controllers.activities.ui.slideshow.SlideshowFragment"
+        android:id="@+id/nav_lunch"
+        android:name="com.uimainon.go4lunch.controllers.fragments.YourLunch"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_your_lunch" />
 
     <fragment
-        android:id="@+id/nav_tools"
-        android:name="com.uimainon.go4lunch.controllers.activities.ui.tools.ToolsFragment"
+        android:id="@+id/nav_map_view"
+        android:name="com.uimainon.go4lunch.controllers.fragments.MapViewFragment"
         android:label="@string/menu_tools"
         tools:layout="@layout/fragment_map_view" />
 
     <fragment
-        android:id="@+id/nav_share"
-        android:name="com.uimainon.go4lunch.controllers.activities.ui.share.ShareFragment"
+        android:id="@+id/nav_setting"
+        android:name="com.uimainon.go4lunch.controllers.fragments.SettingFragment"
         android:label="@string/menu_share"
         tools:layout="@layout/fragment_setting" />
 
     <fragment
-        android:id="@+id/nav_send"
-        android:name="com.uimainon.go4lunch.controllers.activities.ui.send.SendFragment"
+        android:id="@+id/nav_details_restaurant"
+        android:name="com.uimainon.go4lunch.controllers.activities.DetailsRestaurantActivity"
         android:label="@string/menu_send"
         tools:layout="@layout/activity_details_restaurants" />
 </navigation>
