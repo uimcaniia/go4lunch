@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,10 +33,10 @@ public abstract class BaseActivity  extends AppCompatActivity {//AppCompatActivi
     // UI
     // --------------------
 
-/*    protected void configureToolbar(){
+    protected void configureToolbar(){
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
-    }*/
+    }
 
     // --------------------
     // ERROR HANDLER

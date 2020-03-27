@@ -11,8 +11,8 @@ import com.uimainon.go4lunch.R;
 
 public class ListRestaurants extends Fragment {
 
-    public static MapViewFragment newInstance() {
-        MapViewFragment fragment = new MapViewFragment();
+    public static ListRestaurants newInstance() {
+        ListRestaurants fragment = new ListRestaurants();
         return fragment;
     }
 

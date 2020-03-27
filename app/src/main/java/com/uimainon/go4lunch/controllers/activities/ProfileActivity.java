@@ -1,5 +1,6 @@
 package com.uimainon.go4lunch.controllers.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -19,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.base.BaseActivity;
@@ -28,7 +30,9 @@ import com.uimainon.go4lunch.controllers.fragments.MapViewFragment;
 import com.uimainon.go4lunch.controllers.fragments.SettingFragment;
 import com.uimainon.go4lunch.controllers.fragments.YourLunch;
 
-public class ProfileActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+import butterknife.BindView;
+
+public class ProfileActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener{
 
 
     //FOR FRAGMENTS
@@ -55,29 +59,24 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
 
+    @BindView(R.id.activity_main_bottom_navigation)
+    BottomNavigationView bottomNavigationView;
+
     //FOR DATA
     // 2 - Identify each Http Request
     private static final int SIGN_OUT_TASK = 10;
+    private static final int UPDATE_USERNAME = 30;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.configureToolBar();
+        this.configureBottomView();
         this.updateUIWhenCreating();
         this.configureDrawerLayout();
         this.configureNavigationView();
-        // 2 - Show First Fragment
         this.showFirstFragment();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            this.drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     @Override
@@ -98,17 +97,41 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             case R.id.profile_activity_logout:
                 this.signOutUserFromFirebase();
                 break;
+            case R.id.profile_activity_chat:
+                Intent intent = new Intent(this, ChatActivity.class);
+                startActivity(intent);
+                break;
             default:
                 break;
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+    // 2 - Configure BottomNavigationView
+    private Boolean bottomNavigationItemmSelected(Integer integer){
+        switch (integer) {
+            case R.id.action_map:
+                this.showFragment(FRAGMENT_MAP);
+                break;
+            case R.id.action_list:
+                this.showFragment(FRAGMENT_RESTAURANT);
+                break;
+            case R.id.action_people:
+                this.showFragment(FRAGMENT_PEOPLE);
+                break;
+        }
+        return true;
+    }
+    // 2 - Configure BottomNavigationView Listener
+    private void configureBottomView(){
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> bottomNavigationItemmSelected(item.getItemId()));
+    }
     // 1 - Configure Toolbar
    private void configureToolBar(){
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
+
     // 2 - Configure Drawer Layout
     private void configureDrawerLayout(){
         this.drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -134,6 +157,14 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                 .apply(RequestOptions.circleCropTransform())
                 .into(imageViewProfile);
     }
+    @Override
+    public void onBackPressed() {
+        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     // 1 - Update UI when activity is creating
     //Nous avons créé une méthode nommée updateUIWhenCreating() (1) et appelée dans le  onCreate() (2) de l'activité.
@@ -149,7 +180,6 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
         }
     }
-
 
     private void showFragment(int fragmentIdentifier){ // 5 - Show fragment according an Identifier
         switch (fragmentIdentifier){
@@ -211,6 +241,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                     .replace(R.id.nav_host_fragment, fragment).commit();
         }
     }
+
     // --------------------
     // REST REQUESTS
     // --------------------

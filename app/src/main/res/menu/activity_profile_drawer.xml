@@ -15,10 +15,16 @@
             android:textColor="@color/colorBgNavBar"
             android:title="SETTINGS" />
         <item
+            android:id="@+id/profile_activity_chat"
+            android:textColor="@color/colorBgNavBar"
+            android:icon="@drawable/ic_chat_24px"
+            android:title="CHAT" />
+        <item
             android:id="@+id/profile_activity_logout"
             android:textColor="@color/colorBgNavBar"
             android:icon="@drawable/ic_power_settings_new_24px"
             android:title="LOGOUT" />
+
     </group>
 
 </menu>

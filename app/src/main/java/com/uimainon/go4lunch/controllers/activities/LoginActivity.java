@@ -1,15 +1,23 @@
 package com.uimainon.go4lunch.controllers.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.RequiresApi;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.uimainon.go4lunch.R;
+import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.base.BaseActivity;
 
 import java.util.Arrays;
@@ -17,13 +25,14 @@ import java.util.Arrays;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class LoginActivity  extends BaseActivity {
+public class LoginActivity  extends BaseActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     //FOR DESIGN
     @BindView(R.id.main_activity_coordinator_layout)
     CoordinatorLayout coordinatorLayout;
     @BindView(R.id.main_activity_button_login)
     Button buttonLogin;
+    private final int LOCATION_PERMISSION_REQUEST_CODE = 1252;
 
     //FOR DATA
     private static final int RC_SIGN_IN = 123;
@@ -50,6 +59,7 @@ public class LoginActivity  extends BaseActivity {
     // ACTIONS
     // --------------------
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @OnClick(R.id.main_activity_button_login)
     public void onClickLoginButton() {
         if (this.isCurrentUserLogged()){
@@ -63,18 +73,16 @@ public class LoginActivity  extends BaseActivity {
     // REST REQUEST
     // --------------------
 
-/*
     private void createUserInFirestore(){
-
         if (this.getCurrentUser() != null){
-
             String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
             String username = this.getCurrentUser().getDisplayName();
             String uid = this.getCurrentUser().getUid();
+            String email = this.getCurrentUser().getEmail();
 
-            UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, username, urlPicture, email).addOnFailureListener(this.onFailureListener());
         }
-    }*/
+    }
 
     // --------------------
     // NAVIGATION
@@ -87,19 +95,56 @@ public class LoginActivity  extends BaseActivity {
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(
-                                        new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build(), //GOOGLE
-                                        new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build())) // FACEBOOK
+                                      /*  new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build(), //twitter*/
+                                        new AuthUI.IdpConfig.EmailBuilder().build(), //EMAIL
+                                        new AuthUI.IdpConfig.GoogleBuilder().build(), //GOOGLE
+                                        new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
                         .setIsSmartLockEnabled(false, true)
                         .setLogo(R.drawable.ic_logo_auth)
                         .build(),
                 RC_SIGN_IN);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void startProfileActivity(){
-        Intent intent = new Intent(this, ProfileActivity.class);
-        startActivity(intent);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){//&& (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)){//||(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION))) {
+                explain();//expliquer pourquoi l'autorisation est nécessaire
+            } else {
+                askForPermission();
+            }
+        } else {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
+        }
     }
-
+    private void explain(){
+        Snackbar.make(coordinatorLayout, "Cette permission est nécessaire pour vous localiser sur la carte", Snackbar.LENGTH_LONG).setAction("Activer", new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view){
+                askForPermission(); //demander l'autorisation
+            }
+        }).show();
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void askForPermission() {
+        requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, LOCATION_PERMISSION_REQUEST_CODE);//demander l'autorisation
+        //requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, LOCATION_PERMISSION_REQUEST_CODE_COARSE);
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        if(requestCode == LOCATION_PERMISSION_REQUEST_CODE){//||(requestCode == LOCATION_PERMISSION_REQUEST_CODE_COARSE)){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                startProfileActivity();
+            }else{
+                explain();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
     // --------------------
     // UI
     // --------------------
@@ -122,19 +167,18 @@ public class LoginActivity  extends BaseActivity {
     // En fonction des résultats retournés, nous affichons une Snackbar avec un message personnalisé.
     // On n'oublie également pas d'appeler cette méthode dans le  onActivityResult()  de notre activité.
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data){
-
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
-               // this.createUserInFirestore();
+                this.createUserInFirestore();
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
-                } else if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
+                } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
-                } else if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
                 }
             }

@@ -12,4 +12,8 @@
     <color name="colorFocusNavBar">#FF5722</color>
     <color name="colorBlurdNavBar">#000000</color>
     <color name="colorBgNavBar">#FFFFFF</color>
+
+    <color name="colorGreen">#6BB18C</color>
+    <color name="colorSandLight">#ECDAAF</color>
+    <color name="colorSand">#EBCB94</color>
 </resources>
