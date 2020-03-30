@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -56,6 +58,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback  {
                 latitude = location.getLatitude();
                 System.out.println("onLocationChanged" + latitude );
                 System.out.println("onLocationChanged" +longitude);
+                if(mMap != null){
+                    onMapReady(mMap);
+                }
+
 /*                LatLng currentLocation = new LatLng(latitude, longitude);
                 mMap.addMarker(new MarkerOptions().position(currentLocation).title("My Location"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
@@ -76,6 +82,11 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback  {
         };
         assert locationManager != null;
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override

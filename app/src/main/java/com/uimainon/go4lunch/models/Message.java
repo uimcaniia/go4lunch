@@ -1,7 +1,8 @@
 package com.uimainon.go4lunch.models;
 
 import com.google.firebase.firestore.ServerTimestamp;
-import com.google.type.Date;
+
+import java.util.Date;
 
 public class Message {
     private String message;

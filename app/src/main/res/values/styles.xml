@@ -12,11 +12,16 @@
         <item name="colorPrimaryDark">@color/colortopBarLog</item>
     </style>
 
+    <style  parent="Theme.AppCompat.Light.DarkActionBar"  name="AppTheme.Chat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+    </style>
+
 
     <!-- Toolbar theme. -->
     <style name="ToolBarStyle" parent="AppTheme">
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="colorControlNormal">@android:color/white</item>
+        <item name="android:background">@color/colorPrimary</item>
     </style>
 
     <!-- STYLE FOR MAIN ACTIVITY -->

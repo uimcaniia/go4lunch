@@ -13,7 +13,7 @@
     <color name="colorBlurdNavBar">#000000</color>
     <color name="colorBgNavBar">#FFFFFF</color>
 
-    <color name="colorGreen">#6BB18C</color>
-    <color name="colorSandLight">#ECDAAF</color>
-    <color name="colorSand">#EBCB94</color>
+    <color name="colorChatLigth">#FACC90</color>
+    <color name="colorChatMedium">#FF5722</color>
+    <color name="colorChatDark">#F8440B</color>
 </resources>

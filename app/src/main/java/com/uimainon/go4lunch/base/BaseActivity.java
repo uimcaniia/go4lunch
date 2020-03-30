@@ -36,6 +36,7 @@ public abstract class BaseActivity  extends AppCompatActivity {//AppCompatActivi
     protected void configureToolbar(){
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
+      /*  getActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));*/
     }
 
     // --------------------

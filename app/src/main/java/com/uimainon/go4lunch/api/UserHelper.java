@@ -30,7 +30,6 @@ public class UserHelper {
     public static Task<Void> updateUsername(String username, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("username", username);
     }
-
     public static Task<Void> updateLattitude(Double latitude, String uid) {
        return UserHelper.getUsersCollection().document(uid).update("latitude", latitude);
     }
@@ -40,7 +39,6 @@ public class UserHelper {
     public static Task<Void> updateRestaurant(int idRestaurant, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("idRestaurant", idRestaurant);
     }
-
     // --- DELETE ---
     public static Task<Void> deleteUser(String uid) {
         return UserHelper.getUsersCollection().document(uid).delete();

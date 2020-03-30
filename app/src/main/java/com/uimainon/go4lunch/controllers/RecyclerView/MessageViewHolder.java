@@ -13,12 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.type.Date;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.models.Message;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,7 +33,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     LinearLayout profileContainer;
     @BindView(R.id.activity_worker_chat_item_profile_container_profile_image)
     ImageView imageViewProfile;
-    @BindView(R.id.activity_worker_chat_item_profile_container_is_worker_image) ImageView imageViewIsworker;
+/*    @BindView(R.id.activity_worker_chat_item_profile_container_is_worker_image) ImageView imageViewIsworker;*/
 
     //MESSAGE CONTAINER
     @BindView(R.id.activity_worker_chat_item_message_container) RelativeLayout messageContainer;
@@ -77,12 +77,13 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         // Update profile picture ImageView
         if (message.getUserSender().getUrlPicture() != null)
+
             glide.load(message.getUserSender().getUrlPicture())
                     .apply(RequestOptions.circleCropTransform())
                     .into(imageViewProfile);
 
         // Update image sent ImageView
-        if (message.getUrlImage() != null){
+        if (message.getUrlImage() != null) {
             glide.load(message.getUrlImage())
                     .into(imageViewSent);
             this.imageViewSent.setVisibility(View.VISIBLE);
@@ -92,10 +93,11 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         //Update Message Bubble Color Background
         ((GradientDrawable) textMessageContainer.getBackground()).setColor(isCurrentUser ? colorCurrentUser : colorRemoteUser);
-
         // Update all views alignment depending is current user or not
         this.updateDesignDependingUser(isCurrentUser);
     }
+
+
 
     private void updateDesignDependingUser(Boolean isSender){
 
@@ -106,7 +108,7 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         // MESSAGE CONTAINER
         RelativeLayout.LayoutParams paramsLayoutContent = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        paramsLayoutContent.addRule(isSender ? RelativeLayout.LEFT_OF : RelativeLayout.RIGHT_OF, R.id.activity_worker_chat_item_message_container);
+        paramsLayoutContent.addRule(isSender ? RelativeLayout.LEFT_OF : RelativeLayout.RIGHT_OF, R.id.activity_worker_chat_item_profile_container);
         this.messageContainer.setLayoutParams(paramsLayoutContent);
 
         // CARDVIEW IMAGE SEND
@@ -123,4 +125,8 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         DateFormat dfTime = new SimpleDateFormat("HH:mm");
         return dfTime.format(date);
     }
+/*    private int convertDateToHour(java.util.Date date) {
+        DateFormat dfTime = new SimpleDateFormat("HH:mm");
+        return Integer.parseInt(dfTime.format(date));
+    }*/
 }
