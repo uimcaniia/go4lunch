@@ -217,14 +217,6 @@ public class ChatActivity extends BaseActivity implements ChatAdapter.Listener {
         if (requestCode == RC_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) { //SUCCESS
                 this.uriImageSelected = data.getData();
-/*                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), this.uriImageSelected);
-                    imageView.setImageBitmap(bitmap);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }*/
                 Glide.with(this) //SHOWING PREVIEW OF IMAGE
                         .load(this.uriImageSelected)
                         .apply(RequestOptions.circleCropTransform())
@@ -276,24 +268,5 @@ public class ChatActivity extends BaseActivity implements ChatAdapter.Listener {
                      });
          }
     }
-/*
-     // 1 - Upload a picture in Firebase and send a message
-     private void uploadPhotoInFirebaseAndSendMessage(final String message) {
-        String uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING
-        // A - UPLOAD TO GCS
-        StorageReference mImageRef = FirebaseStorage.getInstance().getReference(uuid);
-        mImageRef.putFile(this.uriImageSelected)
-                .addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                        String pathImageSavedInFirebase = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
-                        // B - SAVE MESSAGE IN FIRESTORE
-                        MessageHelper.createMessageWithImageForChat(pathImageSavedInFirebase, message, currentChatName, modelCurrentUser).addOnFailureListener(onFailureListener());
-                    }
-                })
-                .addOnFailureListener(this.onFailureListener())
-    };*/
-
 }
 

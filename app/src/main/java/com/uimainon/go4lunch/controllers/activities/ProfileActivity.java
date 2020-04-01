@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -19,7 +20,10 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.uimainon.go4lunch.R;
@@ -29,10 +33,11 @@ import com.uimainon.go4lunch.controllers.fragments.ListRestaurants;
 import com.uimainon.go4lunch.controllers.fragments.MapViewFragment;
 import com.uimainon.go4lunch.controllers.fragments.SettingFragment;
 import com.uimainon.go4lunch.controllers.fragments.YourLunch;
+import com.uimainon.go4lunch.service.NearByPlaces;
 
 import butterknife.BindView;
 
-public class ProfileActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class ProfileActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener{//}, MapViewFragment.OnHeadlineSelectedListener {
 
 
     //FOR FRAGMENTS
@@ -67,6 +72,8 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     private static final int SIGN_OUT_TASK = 10;
     private static final int UPDATE_USERNAME = 30;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +84,11 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
         this.configureDrawerLayout();
         this.configureNavigationView();
         this.showFirstFragment();
+
+        PlacesClient placesClient;
+       /* this.getRestaurantPosition();*/
+
+
     }
 
     @Override
@@ -263,5 +275,76 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             }
         };
     }
+/*    @Override
+    public void onAttachFragment(Fragment fragment) {
+        if (fragment instanceof MapViewFragment) {
+            MapViewFragment fragmentMapView = (MapViewFragment) fragment;
+            fragmentMapView.setOnHeadlineSelectedListener(this);
+        }
+    }*/
+
+    private String getUrl(Double latitude, Double longitude, String placeType) {
+        StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googleUrl.append("location=" + latitude + "," + longitude);
+        googleUrl.append("&radius=" + 3000);
+        googleUrl.append("&type=" + placeType);
+        googleUrl.append("&key=" + getString(R.string.google_maps_key));
+        return googleUrl.toString();
+    }
+
+/*    @Override
+    public void callShowMyLocation(Double lat, Double lon) {
+        latitude = lat;
+        longitude = lon;
+        getRestaurantPosition(latitude, longitude);
+    }*/
+
+    public void getRestaurantPosition(Double latitude, Double longitude, GoogleMap mMap){
+        // Initialize Places.
+        if (!Places.isInitialized()) {
+            String gApiKey = this.getString(R.string.google_maps_key);
+            Places.initialize(this, gApiKey);
+        }
+      /*  System.out.println(latitude);*/
+        String restaurant = "restaurant";
+        String url = getUrl(latitude, longitude, restaurant);
+        System.out.println(url);
+        Object[] transferData = new Object[2];
+        transferData[0] = mMap;
+        transferData[1] = url;
+        NearByPlaces nearByPlaces = new NearByPlaces();
+        nearByPlaces.execute(transferData);
+        Toast.makeText(this, "Searching for nearby restaurants...", Toast.LENGTH_SHORT).show();
+
+// Create a new Places client instance.
+/*        PlacesClient placesClient = Places.createClient(this);
+        List<Place.Field> placeFields = Arrays.asList(
+                Place.Field.NAME,
+                Place.Field.TYPES,
+                Place.Field.ID,
+                Place.Field.PHOTO_METADATAS);
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
+
+        Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
+
+        placeResponse.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                FindCurrentPlaceResponse response = task.getResult();
+
+                for (PlaceLikelihood place : response.getPlaceLikelihoods()) {
+                    System.out.println(place);
+                }
+            } else {
+                //Task was unsuccessful, handle the exception...
+            }
+        }).addOnFailureListener(e -> {
+            //Something went wrong, handle the error..
+        });*/
+
+
+    }
+
 
 }

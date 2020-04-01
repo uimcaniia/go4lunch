@@ -1,11 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: "androidx.navigation.safeargs"
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
         resConfigs "fr", "en"
+        vectorDrawables.useSupportLibrary = true // This line here
         applicationId "com.uimainon.go4lunch"
         minSdkVersion 19
         targetSdkVersion 29
@@ -38,8 +40,11 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.2.1'
     implementation 'androidx.navigation:navigation-ui:2.2.1'
     implementation 'com.google.android.material:material:1.2.0-alpha05'
+    implementation 'com.getbase:floatingactionbutton:1.9.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha05'
+    implementation 'com.getbase:floatingactionbutton:1.9.0'
+/*    implementation 'com.android.support:design:22.2.0'*/
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
@@ -58,7 +63,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-base:17.0.0'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
-
+    implementation 'com.google.android.libraries.places:places:2.2.0'
     //GOOGLE PLACE
     implementation 'com.google.android.libraries.places:places:2.2.0'
 
@@ -90,9 +95,9 @@ dependencies {
     //EASY PERMISSIONS
     implementation 'pub.devrel:easypermissions:1.1.1'
     //Crashlytic
-/*    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true
-    }*/
+    }
 
 }
 apply plugin: 'com.android.application'

@@ -1,19 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/globalLayout"
+    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/text_send"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/restaurant_picture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:adjustViewBounds="true"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:padding="12dp"
+            android:background="@color/colorPrimary"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/details_name_restaurant"
+                    android:textColor="@color/colorBgNavBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/detail_size_name_restaurant"
+                    android:text="Le Zinc" />
+                <ImageView
+                    android:id="@+id/detail_like_restaurant"
+                    android:layout_width="@dimen/size_stars_restaurant"
+                    android:layout_height="@dimen/size_stars_restaurant"
+                    android:layout_marginStart="@dimen/default_large_margin_list_restaurant"
+                    tools:srcCompat="@drawable/ic_star_24px"
+                    android:contentDescription="TODO" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/details_type_restaurant"
+                    android:textColor="@color/colorBgNavBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/default_text_size"
+                    android:text="French restaurant" />
+                <TextView
+                    android:id="@+id/details_adress_restaurant"
+                    android:textColor="@color/colorBgNavBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/default_text_size"
+                    android:text="12 rue du Faubourg Poissonnière" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/detail_padding_picto_top_info"
+            android:paddingBottom="@dimen/detail_padding_picto_top_info"
+            android:paddingStart="@dimen/detail_padding_picto_start_info"
+            android:paddingEnd="@dimen/detail_padding_picto_start_info"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/details_phone_restaurant"
+                    android:layout_width="@dimen/detail_size_picto_info_restaurant"
+                    android:layout_height="@dimen/detail_size_picto_info_restaurant"
+                    android:gravity="center_vertical"
+                    tools:srcCompat="@drawable/ic_call_24px" />
+                <TextView
+                    android:id="@+id/details_phone_text_restaurant"
+                    android:textColor="@color/colorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/detail_size_text_picto_info_size"
+                    android:text="CALL" />
+            </LinearLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"></View>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/details_stars_restaurant"
+                    android:layout_width="@dimen/detail_size_picto_info_restaurant"
+                    android:layout_height="@dimen/detail_size_picto_info_restaurant"
+                    android:gravity="center_vertical"
+                    tools:srcCompat="@drawable/ic_star_plain_24px" />
+                <TextView
+                    android:id="@+id/details_stars_text_restaurant"
+                    android:textColor="@color/colorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/detail_size_text_picto_info_size"
+                    android:text="LIKE" />
+            </LinearLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"></View>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/details_website_restaurant"
+                    android:layout_width="@dimen/detail_size_picto_info_restaurant"
+                    android:layout_height="@dimen/detail_size_picto_info_restaurant"
+                    android:gravity="center_vertical"
+                    tools:srcCompat="@drawable/ic_language_24px" />
+                <TextView
+                    android:id="@+id/details_website_text_restaurant"
+                    android:textColor="@color/colorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/detail_size_text_picto_info_size"
+                    android:text="WEBSITE" />
+            </LinearLayout>
+        </LinearLayout>
+
+<!--        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_participant"
+            android:name="com.uimainon.mareus.view.NewMeetingParticipantFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/default_large_margin"
+            android:layout_marginRight="@dimen/default_large_margin"
+            android:layout_marginBottom="@dimen/default_large_margin"
+            app:layoutManager="LinearLayoutManager"
+            tools:context=".view.NewMeetingParticipantFragment"
+            tools:listitem="@layout/item_fragment_liste_worker_eating" />-->
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_validate_restaurant"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            style="@style/Widget.MaterialComponents.FloatingActionButton"
+            android:clickable="false"
+            android:layout_gravity="bottom|right"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_check_24px"
+            app:backgroundTint="@color/colorAccent"
+            tools:srcCompat="@color/colorPrimary"
+            app:background="@color/colorPrimary" />
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
+
+
+

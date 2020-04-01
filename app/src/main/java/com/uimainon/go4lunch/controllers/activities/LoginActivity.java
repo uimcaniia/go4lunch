@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.snackbar.Snackbar;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
@@ -33,6 +34,8 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
     @BindView(R.id.main_activity_button_login)
     Button buttonLogin;
     private final int LOCATION_PERMISSION_REQUEST_CODE = 1252;
+
+
 
     //FOR DATA
     private static final int RC_SIGN_IN = 123;
@@ -53,6 +56,8 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
     protected void onResume() {
         super.onResume();
         this.updateUIWhenResuming();
+        // Force application to crash
+      /*  Crashlytics.getInstance().crash();*/
     }
 
     // --------------------
@@ -184,4 +189,5 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
             }
         }
     }
+
 }

@@ -69,4 +69,12 @@
     <string name="popup_title_permission_files_access">Cette application a besoin de permission pour fonctionner.</string>
     <string name="toast_title_no_image_chosen">Aucune image choisie&#8230;</string>
 
+    <!-- RECYCLER VIEW RESTAURANT -->
+    <string name="restaurant_name">Restaurant\'s name</string>
+    <string name="restaurant_type">restaurant type</string>
+    <string name="restaurant_adress">restaurant adress</string>
+    <string name="restaurant_open">restaurant open</string>
+    <string name="restaurant_distance">restaurant distance</string>
+    <string name="scarlette_is_joining">Scarlette is joining!</string>
+
 </resources>
