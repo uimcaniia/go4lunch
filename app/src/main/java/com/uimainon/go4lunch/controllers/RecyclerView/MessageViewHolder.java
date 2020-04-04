@@ -61,7 +61,6 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void updateWithMessage(Message message, String currentUserId, RequestManager glide){
-
         // Check if current user is the sender
         Boolean isCurrentUser = message.getUserSender().getUid().equals(currentUserId);
 
@@ -100,7 +99,6 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
 
     private void updateDesignDependingUser(Boolean isSender){
-
         // PROFILE CONTAINER
         RelativeLayout.LayoutParams paramsLayoutHeader = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         paramsLayoutHeader.addRule(isSender ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_LEFT);

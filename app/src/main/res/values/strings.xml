@@ -29,11 +29,12 @@
     <string name="button_update_account">Mettre à jour le nom d\'utilisateur</string>
     <string name="button_delete_account">Supprimer mon compte</string>
     <string name="button_sign_out_account">Déconnexion</string>
-    <string name="info_no_email_found">Auncune adresse email</string>
-    <string name="info_no_username_found">Aucun nom d\'utilisateur</string>
+    <string name="info_no_email_found">email not found</string>
+    <string name="info_no_id_found">id user not found</string>
+    <string name="info_no_username_found">username not found</string>
     <string name="popup_message_confirmation_delete_account">Es-tu sûr(e) de vouloir supprimer ton compte ?</string>
-    <string name="popup_message_choice_yes">Oui !</string>
-    <string name="popup_message_choice_no">Non</string>
+    <string name="popup_message_choice_yes">Yes !</string>
+    <string name="popup_message_choice_no">No</string>
    <!-- <string name="check_box_is_mentor">Etes-vous un mentor ?</string>-->
 
 
@@ -76,5 +77,10 @@
     <string name="restaurant_open">restaurant open</string>
     <string name="restaurant_distance">restaurant distance</string>
     <string name="scarlette_is_joining">Scarlette is joining!</string>
+    <string name="is_eatin_French_restaurant">scarlette is eating french (Le Zinc)</string>
+    <string name="button_website">button website</string>
+    <string name="button_like">button like</string>
+    <string name="button_phone">button phone</string>
+
 
 </resources>

@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.snackbar.Snackbar;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
@@ -84,8 +83,9 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
             String username = this.getCurrentUser().getDisplayName();
             String uid = this.getCurrentUser().getUid();
             String email = this.getCurrentUser().getEmail();
+            String idRestaurant = "null";
 
-            UserHelper.createUser(uid, username, urlPicture, email).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, username, urlPicture, email, idRestaurant).addOnFailureListener(this.onFailureListener());
         }
     }
 
@@ -135,12 +135,11 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void askForPermission() {
         requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, LOCATION_PERMISSION_REQUEST_CODE);//demander l'autorisation
-        //requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, LOCATION_PERMISSION_REQUEST_CODE_COARSE);
     }
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
         if(requestCode == LOCATION_PERMISSION_REQUEST_CODE){//||(requestCode == LOCATION_PERMISSION_REQUEST_CODE_COARSE)){
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 startProfileActivity();

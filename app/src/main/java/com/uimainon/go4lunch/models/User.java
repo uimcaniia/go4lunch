@@ -9,19 +9,19 @@ public class User {
     private String email;
     private Double latitude;
     private Double longitude;
-    private int idRestaurant;
+    private String idRestaurant;
     @Nullable
     private String urlPicture;
 
     public User() { }
 
-    public User(String uid, String username, String urlPicture, String email) {
+    public User(String uid, String username, String urlPicture, String email, String idRestaurant) {
         this.uid = uid;
         this.username = username;
         this.email = email;
         this.latitude = 0.0;
         this.longitude = 0.0;
-        this.idRestaurant =0;
+        this.idRestaurant = "null";
         this.urlPicture = urlPicture;
     }
 
@@ -31,7 +31,7 @@ public class User {
     public String getEmail() { return email;}
     public Double getLongitude() {return longitude;}
     public Double getLatitude() {return latitude;}
-    public int getIdRestaurant() {return idRestaurant;  }
+    public String getIdRestaurant() {return idRestaurant;  }
     public String getUrlPicture() { return urlPicture; }
 
     // --- SETTERS ---
@@ -40,7 +40,7 @@ public class User {
     public void setEmail(String email) {this.email = email;}
     public void setLongitude(Double longitude) {this.longitude = longitude;}
     public void setLatitude(Double latitude) { this.latitude = latitude;}
-    public void setIdRestaurant(int idRestaurant) {this.idRestaurant = idRestaurant; }
+    public void setIdRestaurant(String idRestaurant) {this.idRestaurant = idRestaurant; }
     public void setUrlPicture(String urlPicture) { this.urlPicture = urlPicture; }
 
 

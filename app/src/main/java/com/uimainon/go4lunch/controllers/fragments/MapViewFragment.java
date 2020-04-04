@@ -74,6 +74,7 @@ public class MapViewFragment extends Fragment implements LocationListener  {
         // Get Google Map from Fragment.
         myMap = googleMap;
         // Sét OnMapLoadedCallback Listener.
+
         myMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
 
             @Override
@@ -89,6 +90,7 @@ public class MapViewFragment extends Fragment implements LocationListener  {
         myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         myMap.getUiSettings().setZoomControlsEnabled(true);
         myMap.setMyLocationEnabled(true);
+
     }
 
     // Find Location provider is openning.
@@ -153,6 +155,7 @@ public class MapViewFragment extends Fragment implements LocationListener  {
 /*            this.latitude = myLocation.getLatitude();
             this.longitude = myLocation.getLongitude();*/
             ((ProfileActivity)getActivity()).getRestaurantPosition(myLocation.getLatitude(), myLocation.getLongitude(), myMap);
+            ((ProfileActivity)getActivity()).updateFirestoreUserPosition(myLocation.getLatitude(), myLocation.getLongitude());
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
             myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
@@ -171,6 +174,7 @@ public class MapViewFragment extends Fragment implements LocationListener  {
             option.position(latLng);
             Marker currentMarker = myMap.addMarker(option);
             currentMarker.showInfoWindow();
+
 
         } else {
             Toast.makeText(getContext(), "Location not found!", Toast.LENGTH_LONG).show();

@@ -9,15 +9,14 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_participant"
-        android:name="com.uimainon.mareus.view.NewMeetingParticipantFragment"
+        android:id="@+id/list_restaurant"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/default_large_margin"
         android:layout_marginRight="@dimen/default_large_margin"
         android:layout_marginBottom="@dimen/default_large_margin"
         app:layoutManager="LinearLayoutManager"
-        tools:context=".view.NewMeetingParticipantFragment"
+        tools:context=".controllers.fragments.ListRestaurants"
         tools:listitem="@layout/item_fragment_list_restaurant" />
 
 </RelativeLayout>

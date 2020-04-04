@@ -32,7 +32,6 @@ public class MessageHelper {
     }
 
     public static Task<DocumentReference> createMessageWithImageForChat(String urlImage, String textMessage, String chat, User userSender){
-
         // 1 - Creating Message with the URL image
         Message message = new Message(textMessage, urlImage, userSender);
 
