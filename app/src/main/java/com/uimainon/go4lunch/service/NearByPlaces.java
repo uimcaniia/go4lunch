@@ -25,7 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.controllers.activities.DetailsRestaurantActivity;
-import com.uimainon.go4lunch.models.Restaurant;
+import com.uimainon.go4lunch.models.Vote;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class NearByPlaces extends AsyncTask<Object, String, String> implements G
     private String mGooglePlaceData, mUrl;
     private GoogleMap mMap;
     private Context mContext;
-    private Restaurant mRestaurant;
+    private Vote mRestaurant;
 
     private List<HashMap<String, String>> nearByPlacesListRestaurant;
     private Marker mMarker;

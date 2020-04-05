@@ -33,10 +33,10 @@ public class UserHelper {
     public static Task<Void> updateUsername(String username, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("username", username);
     }
-    public static Task<Void> updateLattitude(Double latitude, String uid) {
+    public static Task<Void> updateLattitude(String latitude, String uid) {
        return UserHelper.getUsersCollection().document(uid).update("latitude", latitude);
     }
-    public static Task<Void> updateLongitude(Double longitude, String uid) {
+    public static Task<Void> updateLongitude(String longitude, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("longitude", longitude);
     }
     public static Task<Void> updateRestaurant(String idRestaurant, String uid) {

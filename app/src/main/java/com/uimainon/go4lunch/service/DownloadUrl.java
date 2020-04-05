@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class DownloadUrl {
+
     public String readPlaceUrl(String placeUrl) throws IOException {
         String data = "";
         InputStream inputStream = null;
@@ -39,7 +40,27 @@ public class DownloadUrl {
             inputStream.close();
             httpURLConnection.disconnect();
         }
-
         return data;
     }
+
+/*    public String getUrlForMarker(Double latitude, Double longitude, String placeType) {
+
+        StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googleUrl.append("location=" + latitude + "," + longitude);
+        googleUrl.append("&radius=" + 3000);
+        googleUrl.append("&type=" + placeType);
+        googleUrl.append("&key=").append(R.string.google_maps_key);
+        return googleUrl.toString();
+    }
+
+
+
+
+    public String getUrlPicture(String photoReference) {
+        StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?");
+        googleUrl.append("maxheight=400");
+        googleUrl.append("&photoreference=").append(photoReference);
+        googleUrl.append("&key=").append(""+R.string.google_maps_key);
+        return googleUrl.toString();
+    }*/
 }

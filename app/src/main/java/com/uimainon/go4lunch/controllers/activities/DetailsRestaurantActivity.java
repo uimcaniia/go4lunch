@@ -1,20 +1,18 @@
 package com.uimainon.go4lunch.controllers.activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,14 +22,18 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
+import com.uimainon.go4lunch.api.VoteHelper;
 import com.uimainon.go4lunch.base.BaseActivity;
 import com.uimainon.go4lunch.models.User;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 
@@ -56,10 +58,10 @@ public class DetailsRestaurantActivity extends BaseActivity {
 
     // FOR DATA
     // 2 - Declaring Adapter and data
-    private String photo = "";
     private String idRestaurant;
     private String idUser = "";
     private String idChoiceRestaurant = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,56 +90,34 @@ public class DetailsRestaurantActivity extends BaseActivity {
             configBtnWebSiteToRestaurant(place.getWebsiteUri());
             textViewNameRestaurant.setText(place.getName());
             textViewAdressRestaurant.setText(" - "+place.getAddress());
-            /*System.out.println(place);*/
         }).addOnFailureListener((exception) -> {
             if (exception instanceof ApiException) {
                 ApiException apiException = (ApiException) exception;
                 int statusCode = apiException.getStatusCode();
-                // Handle error with given status code.
                 System.out.println("Place not found: ");
             }
         });
     }
 
     private void configurePictureRestaurant(String photo_reference) {
+        ImageView pictureRestaurant = (ImageView) findViewById(R.id.restaurant_picture);
         if(photo_reference.equals("null")){
-            ImageView pictureRestaurant = (ImageView) findViewById(R.id.restaurant_picture);
             pictureRestaurant.setImageResource(R.drawable.ic_logo_auth);
         }else{
             String urlPicture = getUrlPicture(photo_reference);
-            new DownloadImageTask((ImageView) findViewById(R.id.restaurant_picture))
-                    .execute(urlPicture);
+            Glide.with(this)
+                .load(urlPicture)
+                .into(pictureRestaurant);
         }
     }
 
     private String getUrlPicture(String photoReference) {
+
         StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?");
         googleUrl.append("maxheight=400");
         googleUrl.append("&photoreference=").append(photoReference);
         googleUrl.append("&key=").append(getString(R.string.google_maps_key));
         return googleUrl.toString();
-    }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
-        }
     }
 
     @Override
@@ -146,7 +126,6 @@ public class DetailsRestaurantActivity extends BaseActivity {
     }
     private void updateUIWhenCreating(){
         if (this.getCurrentUser() != null){
-          //Get id from Firebase
             idUser = this.getCurrentUser().getUid();
         }
     }
@@ -194,7 +173,6 @@ public class DetailsRestaurantActivity extends BaseActivity {
         }
     }
     private void configBtnWebSiteToRestaurant(Uri websiteUri) {
-        /*System.out.println(websiteUri);*/
         if(websiteUri == null){
             imgWebsiteRestaurant.setImageResource(R.drawable.ic_link_off_24px);
         }else {
@@ -228,12 +206,56 @@ public class DetailsRestaurantActivity extends BaseActivity {
         }
     }
     private void configBtnLikeThisRestaurant() {
-       // imgLikeRestaurant.setImageResource(R.drawable.ic_star_border_24px);
-        imgLikeRestaurant.setImageResource(R.drawable.ic_star_plain_24px);
-        imgPhoneRestaurant.setOnClickListener(new View.OnClickListener(){
+        Query listVote = VoteHelper.getAllVotesForRestaurants(idRestaurant);
+        listVote.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if(!Objects.requireNonNull(task.getResult()).isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String idVote = ""+document.getId();
+                            if(idVote.equals(idUser)){
+                                configAddOrRemoveVoteDesignButton(true);
+                                break;
+                            }
+                        }
+                    }else{
+                        System.out.println("No vote for this restaurant");
+                        configAddOrRemoveVoteDesignButton(false);
+                    }
+                } else {
+                    System.out.println("Error getting documents");
+                    configAddOrRemoveVoteDesignButton(false);
+                }
+            }
+        });
+
+    }
+
+    private void configAddOrRemoveVoteDesignButton(Boolean isVote) {
+        System.out.println(isVote);
+        if(!isVote){
+            imgLikeRestaurant.setImageResource(R.drawable.ic_star_border_24px);
+            configAddOrRemoveVote(false);
+        }else{
+            imgLikeRestaurant.setImageResource(R.drawable.ic_star_plain_24px);
+            configAddOrRemoveVote(true);
+        }
+    }
+
+    private void configAddOrRemoveVote(Boolean isVote){
+        imgLikeRestaurant.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-
+                if(!isVote){
+                    Toast.makeText(getApplicationContext(), "Your vote is added !", Toast.LENGTH_SHORT).show();
+                    VoteHelper.createVoteForRestaurant(idRestaurant, idUser);
+                    configAddOrRemoveVoteDesignButton(true);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Your vote is remove !", Toast.LENGTH_SHORT).show();
+                    VoteHelper.deleteVoteForRestaurant(idRestaurant, idUser);
+                    configAddOrRemoveVoteDesignButton(false);
+                }
             }
         });
     }

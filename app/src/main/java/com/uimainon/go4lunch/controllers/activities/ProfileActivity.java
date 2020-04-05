@@ -278,6 +278,7 @@ private String idUser = "";
     }
 
     private String getUrl(Double latitude, Double longitude, String placeType) {
+
         StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googleUrl.append("location=" + latitude + "," + longitude);
         googleUrl.append("&radius=" + 3000);
@@ -303,8 +304,8 @@ private String idUser = "";
     }
 
     public void updateFirestoreUserPosition(Double latitude, Double longitude) {
-        UserHelper.updateLattitude(latitude, idUser);
-        UserHelper.updateLongitude(longitude, idUser);
+        UserHelper.updateLattitude(""+latitude, idUser);
+        UserHelper.updateLongitude(""+longitude, idUser);
     }
 
 

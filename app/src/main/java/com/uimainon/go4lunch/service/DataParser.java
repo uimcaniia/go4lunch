@@ -39,7 +39,6 @@ public class DataParser {
             }
             id = googlePlace.getString("place_id");
 
-
             googlePlaceMap.put("name", nameOfPlace);
             googlePlaceMap.put("vicinity", vicinity);
             googlePlaceMap.put("lat", latitude);
