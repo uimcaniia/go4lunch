@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
-import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -16,24 +15,21 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.controllers.activities.DetailsRestaurantActivity;
 import com.uimainon.go4lunch.models.Vote;
+import com.uimainon.go4lunch.service.apiElements.Result;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class NearByPlaces extends AsyncTask<Object, String, String> implements GoogleMap.OnMarkerClickListener {
+public class NearByPlaces extends AsyncTask<Object, String, Object[]> implements GoogleMap.OnMarkerClickListener {
 
-    private String mGooglePlaceData, mUrl;
+    private List<Result> mGooglePlaceData;
+    private String mUrl;
     private GoogleMap mMap;
     private Context mContext;
     private Vote mRestaurant;
@@ -41,9 +37,8 @@ public class NearByPlaces extends AsyncTask<Object, String, String> implements G
     private List<HashMap<String, String>> nearByPlacesListRestaurant;
     private Marker mMarker;
 
-
     @Override
-    protected String doInBackground(Object... objects) {
+    protected Object[] doInBackground(Object... objects) {
         mMap = (GoogleMap) objects[0];
         mUrl = (String) objects[1];
         mContext = (Context) objects[2];
@@ -53,23 +48,19 @@ public class NearByPlaces extends AsyncTask<Object, String, String> implements G
         } catch (IOException e) {
             e.printStackTrace();
         }
-     /*   System.out.println(mGooglePlaceData);*/
-        return mGooglePlaceData;
+       // System.out.println("ici => "+mGooglePlaceData);
+        return objects;
     }
 
     @Override
-    protected void onPostExecute(String s) {
+    protected void onPostExecute(Object[] s) {
         super.onPostExecute(s);
         UserHelper userHelper = new UserHelper();
         Query listUser = userHelper.getAllUser();
-        DataParser dataParser = new DataParser();
-
-        nearByPlacesListRestaurant = dataParser.parse(s);
-        List<HashMap<String, String>> nearByPlacesListWorker = searchChoiceRestaurantWorker(listUser, nearByPlacesListRestaurant);
-        displayNearByPlaces(nearByPlacesListWorker);
+        displayNearByPlaces();
     }
 
-    private List<HashMap<String, String>> searchChoiceRestaurantWorker(Query listUser, List<HashMap<String, String>> nearByPlacesList){
+/*    private List<HashMap<String, String>> searchChoiceRestaurantWorker(Query listUser, List<HashMap<String, String>> nearByPlacesList){
         FirebaseFirestore.getInstance().collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -83,23 +74,26 @@ public class NearByPlaces extends AsyncTask<Object, String, String> implements G
                     }
                 });
         return nearByPlacesList;
-    }
-    private void displayNearByPlaces(List<HashMap<String, String>> nearByPlacesList) {
-        for (int i = 0; i <nearByPlacesList.size() ; i++) {
-            HashMap <String, String> googleNearByPlace = nearByPlacesList.get(i);
-            String name = googleNearByPlace.get("name");
-            Double latitude = Double.parseDouble(googleNearByPlace.get("lat"));
-            Double longitude = Double.parseDouble(googleNearByPlace.get("lng"));
+    }*/
+    public void displayNearByPlaces() {
+
+        for (int i = 0; i <mGooglePlaceData.size() ; i++) {
+            Result googleNearByPlace = mGooglePlaceData.get(i);
+            /*System.out.println(mGooglePlaceData.get(i));*/
+            String name = googleNearByPlace.getName();
+            Double latitude = googleNearByPlace.getGeometry().getLocation().getLat();//Double.parseDouble(googleNearByPlace.get("lat"));
+            Double longitude = googleNearByPlace.getGeometry().getLocation().getLng();//Double.parseDouble(googleNearByPlace.get("lng"));
             // Add marker to the map
             LatLng latLng = new LatLng(latitude, longitude);
             mMarker = mMap.addMarker(new MarkerOptions()
-            .position(latLng)
-            .title(name)
-           .icon(bitmapDescriptorFromVector(mContext, R.drawable.ic_restaurant_red_24px)));
-            mMarker.setTag(googleNearByPlace.get("id"));
+                    .position(latLng)
+                    .title(name)
+                    .icon(bitmapDescriptorFromVector(mContext, R.drawable.ic_restaurant_red_24px)));
+            mMarker.setTag(googleNearByPlace.getPlaceId());
             mMap.setOnMarkerClickListener(this);
         }
     }
+
 
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
         Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_marker_green);
@@ -119,21 +113,16 @@ public class NearByPlaces extends AsyncTask<Object, String, String> implements G
     @Override
     public boolean onMarkerClick(Marker marker) {
         HashMap<String, String> restaurant;
+        String idRestaurant = (String) marker.getTag();
+        Intent intent = new Intent(mContext, DetailsRestaurantActivity.class);
 
-        for (int i = 0; i <nearByPlacesListRestaurant.size() ; i++) {
-            restaurant = nearByPlacesListRestaurant.get(i);
-            if(restaurant.get("id") == marker.getTag()){
-                Intent intent = new Intent(mContext, DetailsRestaurantActivity.class);
+        assert mContext != null;
+        intent.putExtra("idRestaurant", idRestaurant);
 
-                assert mContext != null;
-                intent.putExtra("idRestaurant", restaurant.get("id"));
-                intent.putExtra("photo_reference", restaurant.get("photo_reference"));
-                intent.putExtra("opening_hours", restaurant.get("opening_hours"));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity (intent);
-                break;
-            }
-        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity (intent);
+
         return false;
     }
+
 }

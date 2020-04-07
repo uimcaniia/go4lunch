@@ -1,6 +1,7 @@
 package com.uimainon.go4lunch.controllers.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -10,15 +11,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -29,8 +33,10 @@ import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.api.VoteHelper;
 import com.uimainon.go4lunch.base.BaseActivity;
+import com.uimainon.go4lunch.controllers.RecyclerView.DetailRestaurantAdapter;
 import com.uimainon.go4lunch.models.User;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -42,7 +48,13 @@ public class DetailsRestaurantActivity extends BaseActivity {
     // FOR DESIGN
     // 1 - Getting all views needed
     @BindView(R.id.list_worker_eating)
-    RecyclerView recyclerViewRestaurant;
+    RecyclerView recyclerViewDetailsRestaurant;
+    // 2 - Declaring Adapter and data
+    private DetailRestaurantAdapter detailRestauranttAdapter;
+    @Nullable
+    //@BindView(R.id.activity_detail_restaurant_text_view_recycler_view_empty)
+    private TextView textViewRecyclerViewEmpty;
+
     @BindView(R.id.details_name_restaurant)
     TextView textViewNameRestaurant;
     @BindView(R.id.details_adress_restaurant)
@@ -56,32 +68,38 @@ public class DetailsRestaurantActivity extends BaseActivity {
     @BindView(R.id.btn_validate_restaurant)
     FloatingActionButton btnValidRestaurant;
 
+
     // FOR DATA
     // 2 - Declaring Adapter and data
     private String idRestaurant;
     private String idUser = "";
     private String idChoiceRestaurant = "";
+    private String nameRestaurant= "";
+    private String nameChoiceRestaurant= "";
+    private Object GoogleMap;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        textViewRecyclerViewEmpty = (TextView) findViewById(R.id.activity_detail_restaurant_text_view_recycler_view_empty);
+
         this.updateUIWhenCreating();
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
-
-        configurePictureRestaurant(bundle.getString("photo_reference"));
 
         if (!Places.isInitialized()) {
             String gApiKey = this.getString(R.string.google_maps_key);
             Places.initialize(this, gApiKey);
         }
         PlacesClient placesClient = Places.createClient(this);
-        idRestaurant = bundle.getString("idRestaurant");
-        configBtnValidChoiceRestaurant();
-        configBtnLikeThisRestaurant();
 
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI, Place.Field.TYPES, Place.Field.ADDRESS);
+        idRestaurant = bundle.getString("idRestaurant");
+        this.configureRecyclerView();
+        configBtnLikeThisRestaurant();
+        ImageView pictureRestaurant = (ImageView) findViewById(R.id.restaurant_picture);
+
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.PHOTO_METADATAS, Place.Field.OPENING_HOURS, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI, Place.Field.TYPES, Place.Field.ADDRESS);
         FetchPlaceRequest request = FetchPlaceRequest.newInstance(idRestaurant, placeFields);
 
         placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
@@ -89,7 +107,32 @@ public class DetailsRestaurantActivity extends BaseActivity {
             configBtnTelToRestaurant(place.getPhoneNumber());
             configBtnWebSiteToRestaurant(place.getWebsiteUri());
             textViewNameRestaurant.setText(place.getName());
+            nameRestaurant = place.getName();
+            configBtnValidChoiceRestaurant();
             textViewAdressRestaurant.setText(" - "+place.getAddress());
+            // Get the photo metadata.
+            if(place.getPhotoMetadatas() != null){
+                PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
+                FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                        .setMaxWidth(500) // Optional.
+                        .setMaxHeight(300) // Optional.
+                        .build();
+                    placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+/*                    System.out.println("Photo found: ");*/
+                    Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                    pictureRestaurant.setImageBitmap(bitmap);
+
+                }).addOnFailureListener((exception) -> {
+                    if (exception instanceof ApiException) {
+                        ApiException apiException = (ApiException) exception;
+                        int statusCode = apiException.getStatusCode();
+                        // Handle error with given status code.
+                        System.out.println("Photo not found: ");
+                    }
+                });
+            }else{
+                pictureRestaurant.setImageResource(R.drawable.ic_logo_auth);
+            }
         }).addOnFailureListener((exception) -> {
             if (exception instanceof ApiException) {
                 ApiException apiException = (ApiException) exception;
@@ -98,26 +141,37 @@ public class DetailsRestaurantActivity extends BaseActivity {
             }
         });
     }
+    // 5 - Configure RecyclerView with a Query
+    private void configureRecyclerView(){
+        //Configure Adapter & RecyclerView
+        Query query = UserHelper.getAllUser();
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                List<User> listUser = new ArrayList<>();
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        User userModel = document.toObject(User.class);
+                        if(userModel.getIdRestaurant().equals(idRestaurant)){
+                            System.out.println("user id restaurant "+userModel.getIdRestaurant());
+                            System.out.println("user id restaurant "+idRestaurant);
+                            listUser.add(userModel);
+                        }
+                    }
+                    if(listUser.size() == 0){
+                        textViewRecyclerViewEmpty.setVisibility(View.VISIBLE);
+                        recyclerViewDetailsRestaurant.setVisibility(View.GONE);
+                    }else{
+                        textViewRecyclerViewEmpty.setVisibility(View.GONE);
+                        recyclerViewDetailsRestaurant.setVisibility(View.VISIBLE);
+                        detailRestauranttAdapter = new DetailRestaurantAdapter(listUser, idUser);
+                        recyclerViewDetailsRestaurant.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                        recyclerViewDetailsRestaurant.setAdapter(detailRestauranttAdapter);
+                    }
 
-    private void configurePictureRestaurant(String photo_reference) {
-        ImageView pictureRestaurant = (ImageView) findViewById(R.id.restaurant_picture);
-        if(photo_reference.equals("null")){
-            pictureRestaurant.setImageResource(R.drawable.ic_logo_auth);
-        }else{
-            String urlPicture = getUrlPicture(photo_reference);
-            Glide.with(this)
-                .load(urlPicture)
-                .into(pictureRestaurant);
-        }
-    }
-
-    private String getUrlPicture(String photoReference) {
-
-        StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?");
-        googleUrl.append("maxheight=400");
-        googleUrl.append("&photoreference=").append(photoReference);
-        googleUrl.append("&key=").append(getString(R.string.google_maps_key));
-        return googleUrl.toString();
+                }
+            }
+        });
     }
 
     @Override
@@ -140,7 +194,6 @@ public class DetailsRestaurantActivity extends BaseActivity {
                          User userConnect = document.toObject(User.class);
                          idChoiceRestaurant = userConnect.getIdRestaurant();
                          changeValidChoiceBtn();
-                         /*System.out.println(idChoiceRestaurant);*/
                      } else {
                          System.out.println( "No such document");
                      }
@@ -157,11 +210,14 @@ public class DetailsRestaurantActivity extends BaseActivity {
             public void onClick(View view) {
                 if((idChoiceRestaurant.equals("null"))||(!idChoiceRestaurant.equals(idRestaurant))){
                     idChoiceRestaurant = idRestaurant;
+                    nameChoiceRestaurant = nameRestaurant;
                 }else{
                     idChoiceRestaurant = "null";
+                    nameChoiceRestaurant ="null";
                 }
-                UserHelper.updateRestaurant(idChoiceRestaurant, idUser);
+                UserHelper.updateRestaurant(idChoiceRestaurant, idUser, nameChoiceRestaurant);
                 updateValidBtn();
+                configureRecyclerView();
             }
         });
     }
@@ -217,14 +273,17 @@ public class DetailsRestaurantActivity extends BaseActivity {
                             if(idVote.equals(idUser)){
                                 configAddOrRemoveVoteDesignButton(true);
                                 break;
+                            }else{
+                               /* System.out.println("vote for this restaurant but not you");*/
+                                configAddOrRemoveVoteDesignButton(false);
                             }
                         }
                     }else{
-                        System.out.println("No vote for this restaurant");
+                  /*      System.out.println("No vote for this restaurant");*/
                         configAddOrRemoveVoteDesignButton(false);
                     }
                 } else {
-                    System.out.println("Error getting documents");
+                  /*  System.out.println("Error getting documents");*/
                     configAddOrRemoveVoteDesignButton(false);
                 }
             }
@@ -233,7 +292,7 @@ public class DetailsRestaurantActivity extends BaseActivity {
     }
 
     private void configAddOrRemoveVoteDesignButton(Boolean isVote) {
-        System.out.println(isVote);
+   /*     System.out.println(isVote);*/
         if(!isVote){
             imgLikeRestaurant.setImageResource(R.drawable.ic_star_border_24px);
             configAddOrRemoveVote(false);

@@ -10,15 +10,17 @@ public class User {
     private String latitude;
     private String longitude;
     private String idRestaurant;
+    private String nameRestaurant;
     @Nullable
     private String urlPicture;
 
     public User() { }
 
-    public User(String uid, String username, String urlPicture, String email, String idRestaurant) {
+    public User(String uid, String username, String urlPicture, String email, String idRestaurant, String nameRestaurant) {
         this.uid = uid;
         this.username = username;
         this.email = email;
+        this.nameRestaurant = nameRestaurant;
         this.latitude = "null";
         this.longitude = "null";
         this.idRestaurant = "null";
@@ -44,7 +46,11 @@ public class User {
     public void setUrlPicture(String urlPicture) { this.urlPicture = urlPicture; }
 
 
+    public String getNameRestaurant() {
+        return nameRestaurant;
+    }
 
-
-
+    public void setNameRestaurant(String nameRestaurant) {
+        this.nameRestaurant = nameRestaurant;
+    }
 }

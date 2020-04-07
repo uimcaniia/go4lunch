@@ -16,8 +16,8 @@ public class UserHelper {
     }
 
     // --- CREATE ---
-    public static Task<Void> createUser(String uid, String username, String urlPicture, String email, String idRestaurant) {
-        User userToCreate = new User(uid, username, urlPicture, email, idRestaurant);
+    public static Task<Void> createUser(String uid, String username, String urlPicture, String email, String idRestaurant, String nameRestaurant) {
+        User userToCreate = new User(uid, username, urlPicture, email, idRestaurant, nameRestaurant);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
 
@@ -28,7 +28,6 @@ public class UserHelper {
     public static Query getAllUser(){
         return UserHelper.getUsersCollection();
     }
-
     // --- UPDATE ---
     public static Task<Void> updateUsername(String username, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("username", username);
@@ -39,8 +38,9 @@ public class UserHelper {
     public static Task<Void> updateLongitude(String longitude, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("longitude", longitude);
     }
-    public static Task<Void> updateRestaurant(String idRestaurant, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("idRestaurant", idRestaurant);
+    public static void updateRestaurant(String idRestaurant, String uid, String nameRestaurant) {
+        UserHelper.getUsersCollection().document(uid).update("idRestaurant", idRestaurant);
+        UserHelper.getUsersCollection().document(uid).update("nameRestaurant", nameRestaurant);
     }
     // --- DELETE ---
     public static Task<Void> deleteUser(String uid) {

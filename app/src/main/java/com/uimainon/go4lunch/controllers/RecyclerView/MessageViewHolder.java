@@ -86,14 +86,11 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         } else {
             this.imageViewSent.setVisibility(View.GONE);
         }
-
         //Update Message Bubble Color Background
         ((GradientDrawable) textMessageContainer.getBackground()).setColor(isCurrentUser ? colorCurrentUser : colorRemoteUser);
         // Update all views alignment depending is current user or not
         this.updateDesignDependingUser(isCurrentUser);
     }
-
-
 
     private void updateDesignDependingUser(Boolean isSender){
         // PROFILE CONTAINER
@@ -114,14 +111,8 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         this.rootView.requestLayout();
     }
 
-    // ---
-
     private String convertDateToHour(Date date){
         DateFormat dfTime = new SimpleDateFormat("HH:mm");
         return dfTime.format(date);
     }
-/*    private int convertDateToHour(java.util.Date date) {
-        DateFormat dfTime = new SimpleDateFormat("HH:mm");
-        return Integer.parseInt(dfTime.format(date));
-    }*/
 }

@@ -160,6 +160,22 @@
             </LinearLayout>
         </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/activity_worker_chat_recycler_view_container"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <!-- MESSAGE RECYCLER VIEW EMPTY -->
+        <TextView
+            android:id="@+id/activity_detail_restaurant_text_view_recycler_view_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_worker_eat_in_this_restaurant_today"
+            android:textAlignment="center"
+            android:layout_margin="@dimen/default_large_margin_chat"/>
+
+        <!-- RECYCLER VIEW -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list_worker_eating"
             android:name="com.uimainon.mareus.view.NewMeetingParticipantFragment"
@@ -171,7 +187,7 @@
             app:layoutManager="LinearLayoutManager"
             tools:context=".view.NewMeetingParticipantFragment"
             tools:listitem="@layout/item_fragment_liste_worker_eating" />
-
+    </LinearLayout>
 
 
     </LinearLayout>

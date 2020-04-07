@@ -191,6 +191,7 @@ private String idUser = "";
             email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
             username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
             idUser = this.getCurrentUser().getUid();
+
         }
     }
 
@@ -245,6 +246,9 @@ private String idUser = "";
     }
     private void showListPeopleFragment(){
         if (this.fragmentListPeople == null) this.fragmentListPeople = ListPeople.newInstance();
+        Bundle valueIdUser = new Bundle();
+        valueIdUser.putString("idUser", idUser);
+        this.fragmentListPeople.setArguments(valueIdUser);
         this.startTransactionFragment(this.fragmentListPeople);
     }
     // 3 - Generic method that will replace and show a fragment inside the MainActivity Frame Layout
@@ -300,6 +304,7 @@ private String idUser = "";
 
         NearByPlaces nearByPlaces = new NearByPlaces();
         nearByPlaces.execute(transferData);
+        //nearByPlaces.displayNearByPlaces(transferData);
         Toast.makeText(this, "Searching for nearby restaurants...", Toast.LENGTH_SHORT).show();
     }
 

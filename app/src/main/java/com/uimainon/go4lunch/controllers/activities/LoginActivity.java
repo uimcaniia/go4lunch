@@ -84,8 +84,9 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
             String uid = this.getCurrentUser().getUid();
             String email = this.getCurrentUser().getEmail();
             String idRestaurant = "null";
+            String nameRestaurant = "null";
 
-            UserHelper.createUser(uid, username, urlPicture, email, idRestaurant).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, username, urlPicture, email, idRestaurant, nameRestaurant).addOnFailureListener(this.onFailureListener());
         }
     }
 

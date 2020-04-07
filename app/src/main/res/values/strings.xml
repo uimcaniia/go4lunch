@@ -81,6 +81,8 @@
     <string name="button_website">button website</string>
     <string name="button_like">button like</string>
     <string name="button_phone">button phone</string>
+    <string name="no_worker_eating">No worker eating</string>
+    <string name="no_worker_eat_in_this_restaurant_today">No worker eat in this restaurant today !</string>
 
 
 </resources>

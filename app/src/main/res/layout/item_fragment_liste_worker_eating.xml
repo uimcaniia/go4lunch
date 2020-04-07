@@ -7,22 +7,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/circle_avatar_worker_eating"
-                    android:layout_width="@dimen/avatar_size_detail_restaurant"
-                    android:layout_height="@dimen/avatar_size_detail_restaurant"
-                    android:layout_marginStart="@dimen/default_large_margin_list_restaurant"
-                    tools:srcCompat="@drawable/circle_avatar"
-                    android:contentDescription="TODO" />
-                <TextView
-                    android:id="@+id/name_worker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="scarlette is joining"
-                    android:textStyle="bold"
-                    android:paddingStart="@dimen/default_large_margin_chat"
-                    android:textSize="@dimen/default_text_size"
-                    android:contentDescription="@string/scarlette_is_joining"/>
+        <ImageView
+            android:id="@+id/circle_avatar_worker_eating"
+            android:layout_width="@dimen/avatar_size_detail_restaurant"
+            android:layout_height="@dimen/avatar_size_detail_restaurant"
+            android:layout_marginStart="@dimen/default_large_margin_list_restaurant"
+            tools:srcCompat="@drawable/circle_avatar"
+            android:contentDescription="TODO" />
+        <TextView
+            android:id="@+id/name_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="scarlette is joining"
+            android:textStyle="bold"
+            android:paddingStart="@dimen/default_large_margin_chat"
+            android:textSize="@dimen/default_text_size"
+            android:contentDescription="@string/scarlette_is_joining"/>
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>
