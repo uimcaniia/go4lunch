@@ -8,6 +8,8 @@ public class Vote {
     public Vote(String idUserVote) {
         this.idUserVote = idUserVote;
     }
+    public Vote() {
+    }
 
     public String getIdUserVote() {
         return idUserVote;

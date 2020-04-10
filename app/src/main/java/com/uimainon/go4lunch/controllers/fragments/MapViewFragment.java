@@ -25,6 +25,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.controllers.activities.ProfileActivity;
+import com.uimainon.go4lunch.service.NearByPlaces;
+import com.uimainon.go4lunch.service.apiElements.Result;
+
+import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -34,10 +38,8 @@ public class MapViewFragment extends Fragment implements LocationListener  {
 
     private ProgressDialog myProgress;
     private GoogleMap myMap;
-/*    private OnHeadlineSelectedListener callback;*/
     private static final String MYTAG = "MYTAG";
-/*    Double latitude;
-    Double longitude;*/
+
 
 
     public static MapViewFragment newInstance() {
@@ -73,8 +75,7 @@ public class MapViewFragment extends Fragment implements LocationListener  {
     private void onMyMapReady(GoogleMap googleMap) {
         // Get Google Map from Fragment.
         myMap = googleMap;
-        // Sét OnMapLoadedCallback Listener.
-
+        // Set OnMapLoadedCallback Listener.
         myMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
 
             @Override
@@ -82,9 +83,6 @@ public class MapViewFragment extends Fragment implements LocationListener  {
                 // Map loaded. Dismiss this dialog, removing it from the screen.
                 myProgress.dismiss();
                 showMyLocation();
-/*                System.out.println(latitude);
-                callback.callShowMyLocation(latitude,longitude);*/
-                //askPermissionsAndShowMyLocation();
             }
         });
         myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -113,13 +111,6 @@ public class MapViewFragment extends Fragment implements LocationListener  {
     }
 
     //-------------------------------------------------------------------------
-/*    public interface OnHeadlineSelectedListener {
-        public void callShowMyLocation(Double lat, Double lon);
-    }
-    public void setOnHeadlineSelectedListener(OnHeadlineSelectedListener callback) {
-        this.callback = callback;
-    }*/
-    //-------------------------------------------------------------------------
     // Call this method only when you have the permissions to view a user's location.
     private void showMyLocation() {
         LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
@@ -140,7 +131,6 @@ public class MapViewFragment extends Fragment implements LocationListener  {
                     MIN_TIME_BW_UPDATES,
                     MIN_DISTANCE_CHANGE_FOR_UPDATES, (LocationListener) this);
             // Getting Location.
-            // Lấy ra vị trí.
             myLocation = locationManager
                     .getLastKnownLocation(locationProvider);
         }
@@ -154,7 +144,8 @@ public class MapViewFragment extends Fragment implements LocationListener  {
         if (myLocation != null) {
 /*            this.latitude = myLocation.getLatitude();
             this.longitude = myLocation.getLongitude();*/
-            ((ProfileActivity)getActivity()).getRestaurantPosition(myLocation.getLatitude(), myLocation.getLongitude(), myMap);
+            //((ProfileActivity)getActivity()).getRestaurantPosition(myLocation.getLatitude(), myLocation.getLongitude(), myMap);
+            getRestaurantPosition(myLocation.getLatitude(), myLocation.getLongitude(), myMap);
             ((ProfileActivity)getActivity()).updateFirestoreUserPosition(myLocation.getLatitude(), myLocation.getLongitude());
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
@@ -162,7 +153,7 @@ public class MapViewFragment extends Fragment implements LocationListener  {
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)             // Sets the center of the map to location user
-                    .zoom(15)                   // Sets the zoom
+                    .zoom(17)                   // Sets the zoom
                     .bearing(90)                // Sets the orientation of the camera to east
                     .tilt(40)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
@@ -181,7 +172,43 @@ public class MapViewFragment extends Fragment implements LocationListener  {
             Log.i(MYTAG, "Location not found");
         }
     }
+    private String getUrl(Double latitude, Double longitude, String placeType) {
+        StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googleUrl.append("location=" + latitude + "," + longitude);
+        googleUrl.append("&radius=" + 1000);
+        googleUrl.append("&type=" + placeType);
+        googleUrl.append("&key=" + getString(R.string.google_maps_key));
+        return googleUrl.toString();
+    }
+    public void getRestaurantPosition(Double latitude, Double longitude, GoogleMap mMap){
+        String url = getUrl(latitude, longitude, "restaurant");
+        Object[] transferData = new Object[4];
+        transferData[0] = mMap;
+        transferData[1] = url;
+        transferData[2] = getContext();
+        transferData[3] = "fragmentMap";
+        getTheAsyncTaskRestaurant(transferData);
+        Toast.makeText(getContext(), "Searching for nearby restaurants...", Toast.LENGTH_SHORT).show();
+    }
 
+    /* Skipping most code and I will only show you the most essential. */
+    private void getTheAsyncTaskRestaurant(Object[] transferData) {
+        NearByPlaces nearByPlaces = new NearByPlaces(new FragmentCallback() {
+            @Override
+            public void onTaskDone(List<Result> mGooglePlaceData) {
+                taskIsDoneGetDetailsrestaurant(mGooglePlaceData);
+            }
+        });
+        nearByPlaces.execute(transferData);
+    }
+    private void taskIsDoneGetDetailsrestaurant(List<Result> mGooglePlaceData) {
+       // System.out.println(mGooglePlaceData);
+
+    }
+
+    public interface FragmentCallback {
+        public void onTaskDone(List<Result> mGooglePlaceData);
+    }
     @Override
     public void onLocationChanged(Location location) {
     }

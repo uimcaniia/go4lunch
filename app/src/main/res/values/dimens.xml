@@ -11,11 +11,13 @@
     <dimen name="default_margin">0dp</dimen>
     <dimen name="default_margin_chat">10dp</dimen>
 
-    <dimen name="default_large_margin_list_restaurant">5dp</dimen>
-    <dimen name="size_image_list_restaurant">48dp</dimen>
-    <dimen name="size_stars_restaurant">30dp</dimen>
+    <dimen name="default_large_margin_list_restaurant">3dp</dimen>
+    <dimen name="default_padding_list_restaurant_picto_people">10dp</dimen>
+    <dimen name="size_image_list_restaurant">60dp</dimen>
+    <dimen name="size_stars_restaurant">20dp</dimen>
 
     <dimen name="size_image_detail_restaurant">96dp</dimen>
+    <dimen name="size_container_picto_restaurant">60dp</dimen>
     <dimen name="detail_size_name_restaurant">20sp</dimen>
     <dimen name="detail_size_picto_info_restaurant">40dp</dimen>
     <dimen name="detail_size_text_picto_info_size">20sp</dimen>
@@ -24,11 +26,13 @@
     <dimen name="avatar_size_detail_restaurant">58dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="fab_icon_size">35dp</dimen>
+    <dimen name="picto_people_size">30dp</dimen>
 
     <dimen name="default_title_size">70sp</dimen>
     <dimen name="default_title_account">40sp</dimen>
 
     <dimen name="default_text_size">13sp</dimen>
+    <dimen name="default_text_size_name_restau_list_view">15sp</dimen>
     <dimen name="default_text_size_button">18sp</dimen>
     <dimen name="default_text_size_mini">8sp</dimen>
 </resources>

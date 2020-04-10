@@ -33,6 +33,7 @@ private String idRestaurant = "";
     public void updateProfileWorker(User user, RequestManager glide, String idUser, UserViewHolder holder) {
 
         String userName = user.getUsername();
+       /* Context context = itemView.getContext();*/
         String word[] = userName.split(SEPARATEUR);
 /*        System.out.println(user.getIdRestaurant());*/
         if (!user.getIdRestaurant().equals("null")) {
@@ -49,6 +50,7 @@ private String idRestaurant = "";
                 firstname = word[0] + " hasn't ";
             }
             this.textViewMessage.setText(firstname + "decided yet");
+            this.textViewMessage.getResources().getColor(R.color.colorLight);
         }
         // Update profile picture ImageView
         if (user.getUrlPicture() != null)

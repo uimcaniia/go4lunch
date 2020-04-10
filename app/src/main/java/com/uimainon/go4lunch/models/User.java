@@ -16,14 +16,14 @@ public class User {
 
     public User() { }
 
-    public User(String uid, String username, String urlPicture, String email, String idRestaurant, String nameRestaurant) {
+    public User(String uid, String username, String urlPicture, String email,String idRestaurant, String nameRestaurant) {
         this.uid = uid;
         this.username = username;
         this.email = email;
         this.nameRestaurant = nameRestaurant;
         this.latitude = "null";
         this.longitude = "null";
-        this.idRestaurant = "null";
+        this.idRestaurant = idRestaurant;
         this.urlPicture = urlPicture;
     }
 

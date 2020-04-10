@@ -18,30 +18,21 @@ import java.util.List;
 public class DetailRestaurantAdapter extends RecyclerView.Adapter<DetailRestaurantAdapter.ViewHolder> {
 
     private final List<User> mUser;
-
-    //FOR DATA
-  /*  private final RequestManager glide;*/
-
     private final String idCurrentUser;
-    private String firstname="";
-    final String SEPARATEUR = " ";
-
-    //FOR COMMUNICATION
-   // private DetailRestaurantAdapter.Listener callback;
 
     public DetailRestaurantAdapter(List<User> items, String idCurrentUser) {
-     /*   this.glide = glide;*/
         mUser = items;
         this.idCurrentUser = idCurrentUser;
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-       // if((!model.getIdRestaurant().equals("null"))&&(model.getIdRestaurant().equals(this.idRestaurant))){
-           // holder.updateWithUser(model, this.idCurrentUser, this.glide, this.idRestaurant);
+
         User user = mUser.get(position);
         String userName = user.getUsername();
-        String word[] = userName.split(SEPARATEUR);
+        String SEPARATEUR = " ";
+        String[] word = userName.split(SEPARATEUR);
+        String firstname = "";
         if(user.getUid().equals(idCurrentUser)) {
             firstname = " I'm joining !";
         }else{

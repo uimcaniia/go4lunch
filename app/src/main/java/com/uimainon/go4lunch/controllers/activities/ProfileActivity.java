@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -22,7 +21,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.uimainon.go4lunch.R;
@@ -33,7 +31,6 @@ import com.uimainon.go4lunch.controllers.fragments.ListRestaurants;
 import com.uimainon.go4lunch.controllers.fragments.MapViewFragment;
 import com.uimainon.go4lunch.controllers.fragments.SettingFragment;
 import com.uimainon.go4lunch.controllers.fragments.YourLunch;
-import com.uimainon.go4lunch.service.NearByPlaces;
 
 import butterknife.BindView;
 
@@ -60,6 +57,10 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     String email = "";
     Uri imageProfil;
 
+    Double latitudeUser;
+    Double longitudeUser;
+    private GoogleMap myMap;
+
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -72,23 +73,19 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     private static final int SIGN_OUT_TASK = 10;
     private static final int UPDATE_USERNAME = 30;
 
-private String idUser = "";
+    private String idUser = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.latitudeUser = 0.0;
+        this.longitudeUser = 0.0;
         this.configureToolBar();
         this.configureBottomView();
         this.updateUIWhenCreating();
         this.configureDrawerLayout();
         this.configureNavigationView();
         this.showFirstFragment();
-
-        PlacesClient placesClient;
-       /* this.getRestaurantPosition();*/
-
-
     }
 
     @Override
@@ -183,11 +180,11 @@ private String idUser = "";
     // Cette dernière récupère l'utilisateur actuellement connecté (via la méthode  getCurrentUser()
     // que nous avons précédemment créée) et qui nous retourne un utilisateur FirebaseUser.
     private void updateUIWhenCreating(){
-            if (this.getCurrentUser() != null){
-                //Get picture URL from Firebase
-                if (this.getCurrentUser().getPhotoUrl() != null) {
-                    imageProfil = this.getCurrentUser().getPhotoUrl();
-                }//Get email & username from Firebase
+        if (this.getCurrentUser() != null){
+            //Get picture URL from Firebase
+            if (this.getCurrentUser().getPhotoUrl() != null) {
+                imageProfil = this.getCurrentUser().getPhotoUrl();
+            }//Get email & username from Firebase
             email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
             username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
             idUser = this.getCurrentUser().getUid();
@@ -241,8 +238,15 @@ private String idUser = "";
         this.startTransactionFragment(this.fragmentMapView);
     }
     private void showListRestaurantFragment(){
-        if (this.fragmentListRestaurant == null) this.fragmentListRestaurant = ListRestaurants.newInstance();
-        this.startTransactionFragment(this.fragmentListRestaurant);
+        if (this.fragmentListRestaurant == null){
+            this.fragmentListRestaurant = ListRestaurants.newInstance();
+            Bundle bundle=new Bundle();
+            String url = getUrl(this.latitudeUser, this.longitudeUser, "restaurant");
+
+            bundle.putString("url", url);
+            this.fragmentListRestaurant.setArguments(bundle);
+            this.startTransactionFragment(this.fragmentListRestaurant);
+        }
     }
     private void showListPeopleFragment(){
         if (this.fragmentListPeople == null) this.fragmentListPeople = ListPeople.newInstance();
@@ -252,7 +256,7 @@ private String idUser = "";
         this.startTransactionFragment(this.fragmentListPeople);
     }
     // 3 - Generic method that will replace and show a fragment inside the MainActivity Frame Layout
-    private void startTransactionFragment(Fragment fragment){
+    public void startTransactionFragment(Fragment fragment){
         if (!fragment.isVisible()){
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.nav_host_fragment, fragment).commit();
@@ -282,36 +286,22 @@ private String idUser = "";
     }
 
     private String getUrl(Double latitude, Double longitude, String placeType) {
-
         StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googleUrl.append("location=" + latitude + "," + longitude);
-        googleUrl.append("&radius=" + 3000);
+        googleUrl.append("&radius=" + 1000);
         googleUrl.append("&type=" + placeType);
         googleUrl.append("&key=" + getString(R.string.google_maps_key));
         return googleUrl.toString();
     }
 
-    public void getRestaurantPosition(Double latitude, Double longitude, GoogleMap mMap){
-        // Initialize Places.
-        updateFirestoreUserPosition(latitude, longitude);
-        String restaurant = "restaurant";
-        String url = getUrl(latitude, longitude, restaurant);
 
-        Object[] transferData = new Object[4];
-        transferData[0] = mMap;
-        transferData[1] = url;
-        transferData[2] = getBaseContext();
-
-        NearByPlaces nearByPlaces = new NearByPlaces();
-        nearByPlaces.execute(transferData);
-        //nearByPlaces.displayNearByPlaces(transferData);
-        Toast.makeText(this, "Searching for nearby restaurants...", Toast.LENGTH_SHORT).show();
-    }
 
     public void updateFirestoreUserPosition(Double latitude, Double longitude) {
         UserHelper.updateLattitude(""+latitude, idUser);
         UserHelper.updateLongitude(""+longitude, idUser);
-    }
+        this.latitudeUser = latitude;
+        this.longitudeUser = longitude;
 
+    }
 
 }

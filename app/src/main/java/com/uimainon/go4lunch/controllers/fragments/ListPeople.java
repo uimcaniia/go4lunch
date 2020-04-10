@@ -21,17 +21,11 @@ import com.uimainon.go4lunch.models.User;
 
 public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
 
-    // FOR DESIGN
-    // 1 - Getting all views needed
-/*    @BindView(R.id.list_workmates)
-    RecyclerView mRecyclerView;*/
     private RecyclerView mRecyclerView;
     private String idUser;
-    private ListPeopleAdapter listPeopleAdapter;
 
     public static ListPeople newInstance() {
-        ListPeople fragment = new ListPeople();
-        return fragment;
+        return new ListPeople();
     }
 
     @Override
@@ -54,8 +48,8 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
 
     private void configureRecyclerView(Context context){
         //Configure Adapter & RecyclerView
-        this.listPeopleAdapter = new ListPeopleAdapter(generateOptionsForAdapter(UserHelper.getAllUser()), Glide.with(context), this, idUser);
-        this.mRecyclerView.setAdapter(this.listPeopleAdapter);
+        ListPeopleAdapter listPeopleAdapter = new ListPeopleAdapter(generateOptionsForAdapter(UserHelper.getAllUser()), Glide.with(context), this, idUser);
+        this.mRecyclerView.setAdapter(listPeopleAdapter);
     }
 
     // 6 - Create options for RecyclerView from a Query
@@ -66,6 +60,7 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
                 .setLifecycleOwner(this)
                 .build();
     }
+
     // --------------------
     // CALLBACK
     // --------------------
@@ -74,10 +69,4 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
 
     }
 
-
-/*    @Subscribe
-    public void onDeleteMeeting(ShowRestaurantChoice event) {
-        mMeetingService.deleteMeeting(event.meeting);
-        mMeetings = mMeetingService.AllMeetings();
-    }*/
 }

@@ -35,6 +35,7 @@ import com.uimainon.go4lunch.api.VoteHelper;
 import com.uimainon.go4lunch.base.BaseActivity;
 import com.uimainon.go4lunch.controllers.RecyclerView.DetailRestaurantAdapter;
 import com.uimainon.go4lunch.models.User;
+import com.uimainon.go4lunch.models.Vote;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,7 +110,9 @@ public class DetailsRestaurantActivity extends BaseActivity {
             textViewNameRestaurant.setText(place.getName());
             nameRestaurant = place.getName();
             configBtnValidChoiceRestaurant();
-            textViewAdressRestaurant.setText(" - "+place.getAddress());
+            String Adress = place.getAddress();
+            String word[] = Adress.split(",");
+            textViewAdressRestaurant.setText(word[0]);
             // Get the photo metadata.
             if(place.getPhotoMetadatas() != null){
                 PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
@@ -141,6 +144,57 @@ public class DetailsRestaurantActivity extends BaseActivity {
             }
         });
     }
+
+    private void configStars(int nbrUser) {
+        Query listVote = VoteHelper.getAllVotesForRestaurants(idRestaurant);
+        listVote.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            private Double nbrVote = 0.00;
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Vote voteModel = document.toObject(Vote.class);
+                        this.nbrVote += 1.00;
+                    }
+                    showStars(nbrUser, nbrVote);
+                }
+            }
+        });
+    }
+
+    private void showStars(int nbrUser, Double nbrVote) {
+        ImageView starsOne = (ImageView) findViewById(R.id.detail_like_restaurant_first);
+        ImageView starsTwo = (ImageView) findViewById(R.id.detail_like_restaurant_Second);
+        ImageView starsThree = (ImageView) findViewById(R.id.detail_like_restaurant_third);
+        System.out.println("user =>" + nbrUser);
+System.out.println("vote =>" +nbrVote);
+
+        double nbr = 1.00/(nbrUser/nbrVote);
+        System.out.println("total =>" +nbr);
+
+        if((nbr == 1.00)||(nbr >= 0.75)){
+            starsOne.setVisibility(View.VISIBLE);
+            starsTwo.setVisibility(View.VISIBLE);
+            starsThree.setVisibility(View.VISIBLE);
+        }
+        if((nbr < 0.75)&&(nbr >= 0.50)){
+            starsOne.setVisibility(View.VISIBLE);
+            starsTwo.setVisibility(View.VISIBLE);
+            starsThree.setVisibility(View.GONE);
+        }
+        if((nbr < 0.50)&&(nbr >= 0.25)){
+            starsOne.setVisibility(View.VISIBLE);
+            starsTwo.setVisibility(View.GONE);
+            starsThree.setVisibility(View.GONE);
+        }
+        if(nbr < 0.25){
+            starsOne.setVisibility(View.GONE);
+            starsTwo.setVisibility(View.GONE);
+            starsThree.setVisibility(View.GONE);
+        }
+
+    }
+
     // 5 - Configure RecyclerView with a Query
     private void configureRecyclerView(){
         //Configure Adapter & RecyclerView
@@ -150,11 +204,10 @@ public class DetailsRestaurantActivity extends BaseActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 List<User> listUser = new ArrayList<>();
                 if (task.isSuccessful()) {
+                    configStars(Objects.requireNonNull(task.getResult()).size());
                     for (DocumentSnapshot document : task.getResult()) {
                         User userModel = document.toObject(User.class);
                         if(userModel.getIdRestaurant().equals(idRestaurant)){
-                            System.out.println("user id restaurant "+userModel.getIdRestaurant());
-                            System.out.println("user id restaurant "+idRestaurant);
                             listUser.add(userModel);
                         }
                     }
@@ -168,7 +221,6 @@ public class DetailsRestaurantActivity extends BaseActivity {
                         recyclerViewDetailsRestaurant.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                         recyclerViewDetailsRestaurant.setAdapter(detailRestauranttAdapter);
                     }
-
                 }
             }
         });

@@ -16,24 +16,16 @@ public class VoteHelper {
                 .collection(COLLECTION_NAME);
                }
 
-    public static void createVoteForRestaurant(String idRestaurant, String idUser){
+    public static void createVoteForRestaurant(String idRestaurant, String idUser) {
         DocumentReference mFirestoreProfiles = RestaurantHelper.getRestaurantsCollection().document(idRestaurant).collection(COLLECTION_NAME).document(idUser);
         Vote vote = new Vote(idUser);
-         mFirestoreProfiles.set(vote).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override public void onSuccess(Void aVoid) {
-               // Toast.makeText(getApplicationContext(), "Document written successfully!", Toast.LENGTH_SHORT).show();
+        mFirestoreProfiles.set(vote).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // Toast.makeText(getApplicationContext(), "Document written successfully!", Toast.LENGTH_SHORT).show();
             }
         });
-        // 1 - Create the Message object
-/*        Vote vote = new Vote(idUser);
-        // 2 - Store Message to Firestore
-        return RestaurantHelper.getRestaurantsCollection()
-                .document(idRestaurant)
-                .collection(COLLECTION_NAME)
-                .document(idUser)
-                .set();*/
     }
-
     // --- DELETE ---
     public static Task<Void> deleteVoteForRestaurant(String idRestaurant, String idUser) {
 

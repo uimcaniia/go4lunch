@@ -16,4 +16,6 @@
     <color name="colorChatLigth">#FACC90</color>
     <color name="colorChatMedium">#FF5722</color>
     <color name="colorChatDark">#F8440B</color>
+
+    <color name="colorLight">#8D8D8D</color>
 </resources>

@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class OpeningHours {
+
     @SerializedName("open_now")
-
     private Boolean openNow;
-    @SerializedName("weekday_text")
 
+    @SerializedName("weekday_text")
     private List<Object> weekdayText = null;
 
     public Boolean getOpenNow() {
