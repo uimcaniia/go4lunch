@@ -20,6 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="scarlette is eating french (Le Zinc)"
+        android:textColor="@color/colorBlurdNavBar"
         android:textStyle="bold"
         android:paddingStart="@dimen/default_large_margin_chat"
         android:textSize="@dimen/default_text_size"

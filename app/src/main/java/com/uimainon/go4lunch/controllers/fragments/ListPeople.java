@@ -26,11 +26,13 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
 
     public static ListPeople newInstance() {
         return new ListPeople();
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getActivity().setTitle("Available workmates!");
     }
 
     @Override

@@ -49,6 +49,7 @@ public class MapViewFragment extends Fragment implements LocationListener  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getActivity().setTitle("I'm Hungry!!");
         // Create Progress Bar.
         myProgress = new ProgressDialog(getContext());
         myProgress.setTitle("Map Loading ...");

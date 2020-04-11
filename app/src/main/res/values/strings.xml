@@ -11,7 +11,7 @@
 
     <!-- NOTIFICATION SERVICE -->
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
-    <string name="notification_title">"Vous avez reçu une notification"</string>
+    <string name="notification_title">"It's lunch time!"</string>
 
     <!-- MAIN ACTIVITY -->
     <string name="error_not_connected">Vous devez vous connecter !</string>

@@ -1,5 +1,6 @@
 package com.uimainon.go4lunch.controllers.RecyclerView;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -15,6 +17,7 @@ import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.service.apiElements.Result;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAdapter.ViewHolder>{
 
@@ -25,6 +28,7 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
     private Double thirdStar = (1.00/3)*3;
 
     public ListRestaurantAdapter(List<Result> mGooglePlaceData, int nbrWorker) {
+      /*  super(itemView);*/
         this.mGooglePlaceData = mGooglePlaceData;
         this.nbrWorker = nbrWorker;
     }
@@ -32,8 +36,10 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
     @NonNull
     @Override
     public ListRestaurantAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ListRestaurantAdapter.ViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_fragment_list_restaurant, parent, false));
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_fragment_list_restaurant, parent, false);
+        return new ListRestaurantAdapter.ViewHolder(view);
+        //return new ListRestaurantAdapter.ViewHolder(LayoutInflater.from(parent.getContext())
+               // .inflate(R.layout.item_fragment_list_restaurant, parent, false));
     }
 
     private int searchNbrStrars(Double nbrVote){
@@ -56,7 +62,6 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
     }
 
     private void showNumberStarOnView(ViewHolder holder, int nbrStars){
-
         if(nbrStars == 3) {
             holder.restaurantLikeFirst.setVisibility(View.VISIBLE);
             holder.restaurantLikeSecond.setVisibility(View.VISIBLE);
@@ -81,12 +86,15 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
 
     @Override
     public void onBindViewHolder(final ListRestaurantAdapter.ViewHolder holder, int position) {
+       /* Context context = ViewHolder.getContext();*/
         Result result = mGooglePlaceData.get(position);
         holder.itemNameRestaurant.setText(result.getName());
         holder.itemAdressRestaurant.setText(result.getVicinity());
         int nbrStars = searchNbrStrars(nbrWorker/result.getNbrVote());
         showNumberStarOnView(holder, nbrStars);
         holder.itemAdressRestaurant.setText(result.getVicinity());
+        int castDistance = (int) result.getDistance();
+        holder.itemDistanceRestaurant.setText(""+castDistance+"m");
 
         if(result.getNbrworkerEating() == 0){
             holder.itemNbrPeopleRestaurant.setVisibility(View.GONE);
@@ -99,6 +107,9 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
 
        // System.out.println("object résult  =>" +result.getOpenHour() +" "+result.getOpenMinute());
         holder.itemHourRestaurant.setText(result.getOpeningHourDetails());
+        if((Objects.equals(result.getOpeningHourDetails(), "Close today"))||(Objects.equals(result.getOpeningHourDetails(), "Close"))){
+            holder.itemHourRestaurant.setTextColor(ContextCompat.getColor(holder.context, R.color.colorPrimaryDark));
+        }
 
         if(result.getPhotoReference()!=null){
             Glide.with(holder.restaurantImage).load(result.getPhotoReference())
@@ -127,9 +138,12 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
         private TextView itemTypeRestaurant;
         private TextView itemAdressRestaurant;
         private TextView itemHourRestaurant;
+        private TextView itemDistanceRestaurant;
+        Context context;
 
         public ViewHolder(View view) {
             super(view);
+            context = view.getContext();
             restaurantImage = (ImageView) itemView.findViewById(R.id.restaurant_image);
             restaurantLikeFirst = (ImageView) itemView.findViewById(R.id.restaurant_like_first);
             restaurantLikeSecond = (ImageView) itemView.findViewById(R.id.restaurant_like_second);
@@ -138,6 +152,7 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
 
             itemNbrPeopleRestaurant = (TextView) itemView.findViewById(R.id.item_nbr_people_restaurant);
             itemNameRestaurant = (TextView) itemView.findViewById(R.id.item_name_restaurant);
+            itemDistanceRestaurant = (TextView)itemView.findViewById(R.id.item_distance_restaurant);
           /*  itemTypeRestaurant = (TextView) itemView.findViewById(R.id.item_type_restaurant);*/
             itemAdressRestaurant = (TextView) itemView.findViewById(R.id.contain_type_and_adress_restaurant);
             itemHourRestaurant = (TextView) itemView.findViewById(R.id.item_hour_restaurant);

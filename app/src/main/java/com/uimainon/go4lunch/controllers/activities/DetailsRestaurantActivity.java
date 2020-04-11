@@ -166,11 +166,8 @@ public class DetailsRestaurantActivity extends BaseActivity {
         ImageView starsOne = (ImageView) findViewById(R.id.detail_like_restaurant_first);
         ImageView starsTwo = (ImageView) findViewById(R.id.detail_like_restaurant_Second);
         ImageView starsThree = (ImageView) findViewById(R.id.detail_like_restaurant_third);
-        System.out.println("user =>" + nbrUser);
-System.out.println("vote =>" +nbrVote);
 
         double nbr = 1.00/(nbrUser/nbrVote);
-        System.out.println("total =>" +nbr);
 
         if((nbr == 1.00)||(nbr >= 0.75)){
             starsOne.setVisibility(View.VISIBLE);

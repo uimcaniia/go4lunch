@@ -57,6 +57,8 @@ public class Result {
 
     private String openingHourDetails;
 
+    private double distance;
+
 
 
     public String getId() {
@@ -135,4 +137,11 @@ public class Result {
 
     public void setNbrworkerEating(int nbrworkerEating) {this.nbrworkerEating = nbrworkerEating;}
 
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
 }

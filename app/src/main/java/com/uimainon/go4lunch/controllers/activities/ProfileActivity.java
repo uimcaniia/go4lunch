@@ -1,17 +1,26 @@
 package com.uimainon.go4lunch.controllers.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -20,9 +29,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.base.BaseActivity;
@@ -30,7 +42,7 @@ import com.uimainon.go4lunch.controllers.fragments.ListPeople;
 import com.uimainon.go4lunch.controllers.fragments.ListRestaurants;
 import com.uimainon.go4lunch.controllers.fragments.MapViewFragment;
 import com.uimainon.go4lunch.controllers.fragments.SettingFragment;
-import com.uimainon.go4lunch.controllers.fragments.YourLunch;
+import com.uimainon.go4lunch.models.User;
 
 import butterknife.BindView;
 
@@ -39,7 +51,6 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
 
     //FOR FRAGMENTS
     // 1 - Declare fragment handled by Navigation Drawer
-    private Fragment fragmentYourLunch;
     private Fragment fragmentSetting;
     private Fragment fragmentMapView;
     private Fragment fragmentListRestaurant;
@@ -47,7 +58,6 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
 
     //FOR DATAS
     // 2 - Identify each fragment with a number
-    private static final int FRAGMENT_LUNCH = 0;
     private static final int FRAGMENT_SETTING = 1;
     private static final int FRAGMENT_MAP = 2;
     private static final int FRAGMENT_RESTAURANT = 3;
@@ -55,6 +65,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
 
     String username = "";
     String email = "";
+    String idRestaurant = "null";
     Uri imageProfil;
 
     Double latitudeUser;
@@ -74,20 +85,37 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     private static final int UPDATE_USERNAME = 30;
 
     private String idUser = "";
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+/*System.out.println("création");*/
         this.latitudeUser = 0.0;
         this.longitudeUser = 0.0;
+
+        /*textViewEmail.setTextColor(ContextCompat.getColor(this, R.color.colorBgNavBar));*/
+        this.updateUIWhenCreating();
         this.configureToolBar();
         this.configureBottomView();
-        this.updateUIWhenCreating();
+
         this.configureDrawerLayout();
         this.configureNavigationView();
         this.showFirstFragment();
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.search_menu, menu);
 
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        // Tells your app's SearchView to use this activity's searchable configuration
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+      //  searchView.setAccessibilityPaneTitle("Search restaurants");
+        return true;
+    }
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_profile;
@@ -98,7 +126,13 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
         int id = item.getItemId();
         switch (id){
             case R.id.profile_activity_your_lunch :
-                this.showFragment(FRAGMENT_LUNCH);
+                if(!idRestaurant.equals("null")){
+                    Intent intentLunch = new Intent(this, DetailsRestaurantActivity.class);
+                    intentLunch.putExtra("idRestaurant", idRestaurant);
+                    startActivity (intentLunch);
+                }else{
+                    Toast.makeText(this, "You don't have choice a restaurant !", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.profile_activity_setting:
                 this.showFragment(FRAGMENT_SETTING);
@@ -152,6 +186,9 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     private void configureNavigationView(){
         this.navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorBgNavBar)));
+        navigationView.setItemIconTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorBgNavBar)));
+
         View hView = navigationView.getHeaderView(0);
 
         TextView textUserName = (TextView) hView.findViewById(R.id.userName);
@@ -159,6 +196,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
 
         TextView textViewEmail = (TextView) hView.findViewById(R.id.userMail);
         textViewEmail.setText(email);
+        textViewEmail.setTextColor(ContextCompat.getColor(this, R.color.colorBgNavBar));
 
         ImageView imageViewProfile = (ImageView) hView.findViewById(R.id.imageViewProfile);
         Glide.with(this)
@@ -188,15 +226,31 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
             username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
             idUser = this.getCurrentUser().getUid();
+            Task<DocumentSnapshot> query = UserHelper.getUser(idUser);
+            query.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
+
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            User userConnect = document.toObject(User.class);
+                            idRestaurant = userConnect.getIdRestaurant();
+                        } else {
+                            System.out.println( "No such document");
+                        }
+                    } else {
+                        System.out.println("get failed");
+                    }
+                }
+
+            });
 
         }
     }
 
     private void showFragment(int fragmentIdentifier){ // 5 - Show fragment according an Identifier
         switch (fragmentIdentifier){
-            case FRAGMENT_LUNCH :
-                this.showYourLunchFragment();
-                break;
             case FRAGMENT_SETTING:
                 this.showSettingFragment();
                 break;
@@ -225,36 +279,40 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     }
 
     // 4 - Create each fragment page and show it
-    private void showYourLunchFragment(){
-        if (this.fragmentYourLunch == null) this.fragmentYourLunch = YourLunch.newInstance();
-        this.startTransactionFragment(this.fragmentYourLunch);
-    }
     private void showSettingFragment(){
         if (this.fragmentSetting == null) this.fragmentSetting = SettingFragment.newInstance();
         this.startTransactionFragment(this.fragmentSetting);
     }
+
     private void showMapViewFragment(){
+
         if (this.fragmentMapView == null) this.fragmentMapView = MapViewFragment.newInstance();
         this.startTransactionFragment(this.fragmentMapView);
     }
     private void showListRestaurantFragment(){
         if (this.fragmentListRestaurant == null){
             this.fragmentListRestaurant = ListRestaurants.newInstance();
+        }
             Bundle bundle=new Bundle();
             String url = getUrl(this.latitudeUser, this.longitudeUser, "restaurant");
+            bundle.putDouble("latitude", this.latitudeUser);
+            bundle.putDouble("longitude", this.longitudeUser);
 
             bundle.putString("url", url);
             this.fragmentListRestaurant.setArguments(bundle);
             this.startTransactionFragment(this.fragmentListRestaurant);
-        }
+
     }
-    private void showListPeopleFragment(){
-        if (this.fragmentListPeople == null) this.fragmentListPeople = ListPeople.newInstance();
+    private void showListPeopleFragment() {
+        if (this.fragmentListPeople == null) {
+            this.fragmentListPeople = ListPeople.newInstance();
+        }
         Bundle valueIdUser = new Bundle();
         valueIdUser.putString("idUser", idUser);
         this.fragmentListPeople.setArguments(valueIdUser);
         this.startTransactionFragment(this.fragmentListPeople);
     }
+
     // 3 - Generic method that will replace and show a fragment inside the MainActivity Frame Layout
     public void startTransactionFragment(Fragment fragment){
         if (!fragment.isVisible()){

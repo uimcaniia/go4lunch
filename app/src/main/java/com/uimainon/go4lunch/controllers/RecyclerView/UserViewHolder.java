@@ -2,10 +2,12 @@ package com.uimainon.go4lunch.controllers.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
@@ -31,7 +33,7 @@ private String idRestaurant = "";
     }
 
     public void updateProfileWorker(User user, RequestManager glide, String idUser, UserViewHolder holder) {
-
+        Context context = itemView.getContext();
         String userName = user.getUsername();
        /* Context context = itemView.getContext();*/
         String word[] = userName.split(SEPARATEUR);
@@ -50,7 +52,9 @@ private String idRestaurant = "";
                 firstname = word[0] + " hasn't ";
             }
             this.textViewMessage.setText(firstname + "decided yet");
-            this.textViewMessage.getResources().getColor(R.color.colorLight);
+            this.textViewMessage.setTextColor(ContextCompat.getColor(context, R.color.colorLight));
+            this.textViewMessage.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
+
         }
         // Update profile picture ImageView
         if (user.getUrlPicture() != null)

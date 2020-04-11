@@ -29,10 +29,8 @@ public class NotificationsService extends FirebaseMessagingService {
         }
     }
 
-    // ---
 
     private void sendVisualNotification(String messageBody) {
-
         // 1 - Create an Intent that will be shown when user will click on the Notification
         Intent intent = new Intent(this, LoginActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
@@ -44,7 +42,6 @@ public class NotificationsService extends FirebaseMessagingService {
 
         // 3 - Create a Channel (Android 8)
         String channelId = getString(R.string.default_notification_channel_id);
-
         // 4 - Build a Notification object
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)

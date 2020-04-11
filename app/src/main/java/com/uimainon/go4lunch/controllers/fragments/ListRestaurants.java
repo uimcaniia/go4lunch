@@ -1,6 +1,8 @@
 package com.uimainon.go4lunch.controllers.fragments;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +46,9 @@ public class ListRestaurants extends Fragment{
     private RecyclerView mRecyclerView;
     private GoogleMap myMap;
     private DateService mDate;
+    private Double latitudeUser;
+    private Double longitudeUser;
+    private ProgressDialog myProgress;
 
     public static ListRestaurants newInstance() {
         ListRestaurants fragment = new ListRestaurants();
@@ -54,7 +59,13 @@ public class ListRestaurants extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDate = new DateService();
-
+        getActivity().setTitle("I'm Hungry!");
+        myProgress = new ProgressDialog(getContext());
+        myProgress.setTitle("Map Loading ...");
+        myProgress.setMessage("Please wait...");
+        myProgress.setCancelable(true);
+        // Display Progress Bar.
+        myProgress.show();
     }
 
     @Override
@@ -64,6 +75,8 @@ public class ListRestaurants extends Fragment{
         assert bundle != null;
 
         String url = bundle.getString("url");
+        this.latitudeUser = bundle.getDouble("latitude");
+        this.longitudeUser = bundle.getDouble("longitude");
         Object[] transferData = new Object[4];
         transferData[0] = myMap;
         transferData[1] = url;
@@ -110,6 +123,20 @@ public class ListRestaurants extends Fragment{
         });
         nearByPlaces.execute(transferData);
     }
+    private double calculateDistance(Double latitudeRestaurant, Double longitudeRestaurant) {
+        double distance=0.0;
+        Location currentLocation = new Location("currentLocation");
+        currentLocation.setLatitude(latitudeUser);
+        currentLocation.setLongitude(longitudeUser);
+
+        Location restaurantLocation = new Location("restaurantLocation");
+        restaurantLocation.setLatitude(latitudeRestaurant);
+        restaurantLocation.setLongitude(longitudeRestaurant);
+
+
+        distance = currentLocation.distanceTo(restaurantLocation);
+        return distance;
+    }
     private void taskIsDoneGetDetailsrestaurant(List<Result> mGooglePlaceData, int nbrWorker, String semaine, int goodHourInFrance, int minute) {
 
         if (!Places.isInitialized()) {
@@ -121,7 +148,8 @@ public class ListRestaurants extends Fragment{
 
         for (int i = 0; i <mGooglePlaceData.size() ; i++) {
             Result googleNearByPlace = mGooglePlaceData.get(i);
-
+            double distance = calculateDistance(googleNearByPlace.getGeometry().getLocation().getLat(), googleNearByPlace.getGeometry().getLocation().getLng());
+            googleNearByPlace.setDistance(distance);
             FetchPlaceRequest request = FetchPlaceRequest.newInstance(googleNearByPlace.getPlaceId(), placeFields);
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
             Place place = response.getPlace();
@@ -129,7 +157,7 @@ public class ListRestaurants extends Fragment{
 
             if (place.getOpeningHours() != null) {
                 resultOpenOrNot = searchRestTimeOpen(place.getOpeningHours().getPeriods(), semaine, goodHourInFrance, minute);
-                System.out.println("name => "+place.getName() +" horaire =>"+resultOpenOrNot+" periode =>"+place.getOpeningHours().getPeriods());
+               // System.out.println("name => "+place.getName() +" horaire =>"+resultOpenOrNot+" periode =>"+place.getOpeningHours().getPeriods());
                 googleNearByPlace.setOpeningHourDetails(resultOpenOrNot);
             }else{
                 googleNearByPlace.setOpeningHourDetails("schedules are not filled in");
@@ -153,6 +181,7 @@ public class ListRestaurants extends Fragment{
                 });
             }
                 configureRecyclerView(mGooglePlaceData, nbrWorker);
+                myProgress.dismiss();
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
                     ApiException apiException = (ApiException) exception;
