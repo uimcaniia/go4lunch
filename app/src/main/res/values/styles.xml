@@ -16,7 +16,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
     </style>
 
-
     <!-- Toolbar theme. -->
     <style name="ToolBarStyle" parent="AppTheme">
         <item name="android:textColorPrimary">@android:color/white</item>

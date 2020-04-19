@@ -1,13 +1,11 @@
 package com.uimainon.go4lunch.controllers.activities;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -55,7 +52,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     private Fragment fragmentMapView;
     private Fragment fragmentListRestaurant;
     private Fragment fragmentListPeople;
-
+private Menu menu;
     //FOR DATAS
     // 2 - Identify each fragment with a number
     private static final int FRAGMENT_SETTING = 1;
@@ -90,32 +87,18 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*System.out.println("création");*/
         this.latitudeUser = 0.0;
         this.longitudeUser = 0.0;
 
-        /*textViewEmail.setTextColor(ContextCompat.getColor(this, R.color.colorBgNavBar));*/
         this.updateUIWhenCreating();
         this.configureToolBar();
         this.configureBottomView();
 
         this.configureDrawerLayout();
-        this.configureNavigationView();
+       // this.configureNavigationView();
         this.showFirstFragment();
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.search_menu, menu);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        // Tells your app's SearchView to use this activity's searchable configuration
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-      //  searchView.setAccessibilityPaneTitle("Search restaurants");
-        return true;
-    }
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_profile;
@@ -131,7 +114,13 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                     intentLunch.putExtra("idRestaurant", idRestaurant);
                     startActivity (intentLunch);
                 }else{
-                    Toast.makeText(this, "You don't have choice a restaurant !", Toast.LENGTH_SHORT).show();
+                    Toast toast = Toast.makeText(this, "You don't have choice a restaurant !", Toast.LENGTH_LONG);
+                    View view = toast.getView();
+                    view.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    TextView text = (TextView) view.findViewById(android.R.id.message);
+                    text.setTextColor(getResources().getColor(R.color.colorBgNavBar));
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
                 }
                 break;
             case R.id.profile_activity_setting:
@@ -173,7 +162,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
    private void configureToolBar(){
         this.toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-    }
+   }
 
     // 2 - Configure Drawer Layout
     private void configureDrawerLayout(){
@@ -182,12 +171,28 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.updateUIWhenCreating();
+       // this.configureNavigationView();
+    }
+
     // 3 - Configure NavigationView
     private void configureNavigationView(){
         this.navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemTextColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorBgNavBar)));
         navigationView.setItemIconTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorBgNavBar)));
+
+        if(!idRestaurant.equals("null")){
+            navigationView.getMenu()
+                    .findItem(R.id.profile_activity_your_lunch).setCheckable(true).setChecked(false);
+        }else{
+            navigationView.getMenu()
+                    .findItem(R.id.profile_activity_your_lunch).setCheckable(true).setChecked(true);
+        }
 
         View hView = navigationView.getHeaderView(0);
 
@@ -236,6 +241,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                         if (document.exists()) {
                             User userConnect = document.toObject(User.class);
                             idRestaurant = userConnect.getIdRestaurant();
+                            configureNavigationView();
                         } else {
                             System.out.println( "No such document");
                         }
@@ -243,9 +249,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                         System.out.println("get failed");
                     }
                 }
-
             });
-
         }
     }
 
@@ -270,6 +274,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     // 1 - Show first fragment when activity is created
     private void showFirstFragment(){
         Fragment visibleFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+
         if (visibleFragment == null){
             // 1.1 - Show News Fragment
             this.showFragment(FRAGMENT_MAP);
@@ -281,11 +286,13 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     // 4 - Create each fragment page and show it
     private void showSettingFragment(){
         if (this.fragmentSetting == null) this.fragmentSetting = SettingFragment.newInstance();
-        this.startTransactionFragment(this.fragmentSetting);
+        {
+            this.startTransactionFragment(this.fragmentSetting);
+        }
+       // searchView.setQueryHint("Search restaurants");
     }
 
     private void showMapViewFragment(){
-
         if (this.fragmentMapView == null) this.fragmentMapView = MapViewFragment.newInstance();
         this.startTransactionFragment(this.fragmentMapView);
     }
@@ -294,14 +301,10 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             this.fragmentListRestaurant = ListRestaurants.newInstance();
         }
             Bundle bundle=new Bundle();
-            String url = getUrl(this.latitudeUser, this.longitudeUser, "restaurant");
             bundle.putDouble("latitude", this.latitudeUser);
             bundle.putDouble("longitude", this.longitudeUser);
-
-            bundle.putString("url", url);
             this.fragmentListRestaurant.setArguments(bundle);
             this.startTransactionFragment(this.fragmentListRestaurant);
-
     }
     private void showListPeopleFragment() {
         if (this.fragmentListPeople == null) {
@@ -362,4 +365,8 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
 
     }
 
+/*    @Override
+    protected void onResume() {
+        super.onResume();
+    }*/
 }

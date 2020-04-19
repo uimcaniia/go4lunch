@@ -35,9 +35,8 @@ private String idRestaurant = "";
     public void updateProfileWorker(User user, RequestManager glide, String idUser, UserViewHolder holder) {
         Context context = itemView.getContext();
         String userName = user.getUsername();
-       /* Context context = itemView.getContext();*/
         String word[] = userName.split(SEPARATEUR);
-/*        System.out.println(user.getIdRestaurant());*/
+
         if (!user.getIdRestaurant().equals("null")) {
             if(user.getUid().equals(idUser)) {
                 firstname = " I eat to ";
@@ -65,8 +64,6 @@ private String idRestaurant = "";
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override  // pour modifier une réunion existante
             public void onClick(View v) {
-               /* mClickListener.onItemClick(v, getAdapterPosition());*/
-               /* System.out.println("click");*/
                 if (!user.getIdRestaurant().equals("null")) {
                     Context context = itemView.getContext();
                     Intent intent = new Intent(context, DetailsRestaurantActivity.class);

@@ -152,7 +152,7 @@ public class DetailsRestaurantActivity extends BaseActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
+                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                         Vote voteModel = document.toObject(Vote.class);
                         this.nbrVote += 1.00;
                     }
@@ -204,14 +204,17 @@ public class DetailsRestaurantActivity extends BaseActivity {
                     configStars(Objects.requireNonNull(task.getResult()).size());
                     for (DocumentSnapshot document : task.getResult()) {
                         User userModel = document.toObject(User.class);
+                        assert userModel != null;
                         if(userModel.getIdRestaurant().equals(idRestaurant)){
                             listUser.add(userModel);
                         }
                     }
                     if(listUser.size() == 0){
+                        assert textViewRecyclerViewEmpty != null;
                         textViewRecyclerViewEmpty.setVisibility(View.VISIBLE);
                         recyclerViewDetailsRestaurant.setVisibility(View.GONE);
                     }else{
+                        assert textViewRecyclerViewEmpty != null;
                         textViewRecyclerViewEmpty.setVisibility(View.GONE);
                         recyclerViewDetailsRestaurant.setVisibility(View.VISIBLE);
                         detailRestauranttAdapter = new DetailRestaurantAdapter(listUser, idUser);

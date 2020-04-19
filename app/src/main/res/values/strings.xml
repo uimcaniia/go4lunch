@@ -83,6 +83,7 @@
     <string name="button_phone">button phone</string>
     <string name="no_worker_eating">No worker eating</string>
     <string name="no_worker_eat_in_this_restaurant_today">No worker eat in this restaurant today !</string>
+    <string name="no_restaurant_was_found">Your selection is not in the original list ! Try again !</string>
 
 
 </resources>

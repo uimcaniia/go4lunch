@@ -12,20 +12,46 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.NoTitle.AppBarOverlay">
+<!--        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/htab_collapse_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/main_activity_parallax_initial_height"
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">-->
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
+                android:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp"
                 app:popupTheme="@style/ToolBarStyle" >
-            </androidx.appcompat.widget.Toolbar>
+                </androidx.appcompat.widget.Toolbar>
 
+<!--        </android.support.design.widget.CollapsingToolbarLayout>-->
         </com.google.android.material.appbar.AppBarLayout>
+
     <include
         layout="@layout/content_profile" />
-
-
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:paddingTop="?attr/actionBarSize"
+        android:id="@+id/contain_result_searchview"
+        android:layout_height="wrap_content">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/result_searchWidget"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:orientation="vertical"
+            android:background="#D5FFFFFF"
+            tools:listitem="@layout/item_place_autocomplete"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </androidx.recyclerview.widget.RecyclerView>
+    </FrameLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/activity_main_bottom_navigation"
         android:layout_width="match_parent"

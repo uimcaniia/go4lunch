@@ -19,4 +19,30 @@
         tools:context=".controllers.fragments.ListRestaurants"
         tools:listitem="@layout/item_fragment_list_restaurant" />
 
+    <TextView
+        android:id="@+id/textNoRestaurant"
+        android:gravity="center_vertical"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/no_restaurant_was_found" />
+
+    <com.getbase.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_refresh_restaurant"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:visibility="gone"
+        android:padding="2dp"
+        android:foregroundGravity="center"
+        app:fabSize="normal"
+        app:fab_colorNormal="#FAF7F7"
+        android:scaleType="center"
+        app:fab_icon="@drawable/ic_refresh_24px" />
+
 </RelativeLayout>

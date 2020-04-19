@@ -1,12 +1,24 @@
 package com.uimainon.go4lunch.controllers.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.SearchView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -14,8 +26,10 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -30,6 +44,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.controllers.RecyclerView.ListRestaurantAdapter;
+import com.uimainon.go4lunch.controllers.RecyclerView.PlacesAutoCompleteAdapter;
 import com.uimainon.go4lunch.service.DateService;
 import com.uimainon.go4lunch.service.NearByPlaces;
 import com.uimainon.go4lunch.service.apiElements.Result;
@@ -41,7 +56,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class ListRestaurants extends Fragment{
+public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapter.ClickListener{
 
     private RecyclerView mRecyclerView;
     private GoogleMap myMap;
@@ -49,6 +64,19 @@ public class ListRestaurants extends Fragment{
     private Double latitudeUser;
     private Double longitudeUser;
     private ProgressDialog myProgress;
+    private SearchView sv;
+    private Menu menu;
+    private List<Result> originalGooglePlaceData;
+    private int nbrUser=0;
+    private MenuItem searchItem;
+    private RecyclerView mRecyclerViewAutoComplete;
+    private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
+    private String week;
+    private int goodHourInFrance;
+    private int minute;
+    private TextView mTextViewNothing;
+    private FloatingActionButton floatBtn;
+    private View rootView;
 
     public static ListRestaurants newInstance() {
         ListRestaurants fragment = new ListRestaurants();
@@ -61,67 +89,154 @@ public class ListRestaurants extends Fragment{
         mDate = new DateService();
         getActivity().setTitle("I'm Hungry!");
         myProgress = new ProgressDialog(getContext());
-        myProgress.setTitle("Map Loading ...");
+        myProgress.setTitle("Searching all restaurant. Loading ...");
         myProgress.setMessage("Please wait...");
         myProgress.setCancelable(true);
         // Display Progress Bar.
         myProgress.show();
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_list_restaurant, container, false);
+        this.rootView = inflater.inflate(R.layout.fragment_list_restaurant, container, false);
         Bundle bundle=getArguments();
         assert bundle != null;
 
         String url = bundle.getString("url");
         this.latitudeUser = bundle.getDouble("latitude");
         this.longitudeUser = bundle.getDouble("longitude");
-        Object[] transferData = new Object[4];
-        transferData[0] = myMap;
-        transferData[1] = url;
+        Object[] transferData = new Object[6];
+
+        transferData[0] = latitudeUser;
+        transferData[1] = longitudeUser;
         transferData[2] = getContext();
         transferData[3] = "listRestaurants";
+        transferData[4] = myMap;
+        transferData[5] = getString(R.string.google_maps_key);
 
         DateService mDate = new DateService();
         int nbrWeek = mDate.givedayOfWeek();
-        int goodHourInFrance = 0;
+        this.goodHourInFrance = 0;
         Date today = mDate.formatDateToCompare(mDate.giveYear(), mDate.giveMonth(), mDate.giveDay());
         try {
-            goodHourInFrance = mDate.giveTheGoodHourInFrance(mDate.giveYear(), mDate.giveHour(), today);
+            this.goodHourInFrance = mDate.giveTheGoodHourInFrance(mDate.giveYear(), mDate.giveHour(), today);
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        this.week = mDate.giveTheDayOfTheWeek(nbrWeek);
+        this.minute = mDate.giveMinute();
 
-         String week = mDate.giveTheDayOfTheWeek(nbrWeek);
+        FrameLayout mFram =  getActivity().findViewById(R.id.contain_result_searchview);
+        mRecyclerViewAutoComplete = (RecyclerView)mFram.findViewById(R.id.result_searchWidget);
+        mRecyclerViewAutoComplete.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerViewAutoComplete.addItemDecoration(new DividerItemDecoration(Objects.requireNonNull(getContext()), DividerItemDecoration.VERTICAL));
+        mAutoCompleteAdapter = new PlacesAutoCompleteAdapter(getContext(),latitudeUser,longitudeUser);
+        mAutoCompleteAdapter.setClickListener(this);
+        mAutoCompleteAdapter.notifyDataSetChanged();
+        mRecyclerViewAutoComplete.setAdapter(mAutoCompleteAdapter);
 
-        getTheAsyncTaskRestaurant(transferData, week, goodHourInFrance, mDate.giveMinute());
         mRecyclerView = (RecyclerView)rootView.findViewById(R.id.list_restaurant);
+      /*  */
+        mTextViewNothing = rootView.findViewById(R.id.textNoRestaurant); // s'affichera si aucune réunion existe
+        floatBtn = rootView.findViewById(R.id.btn_refresh_restaurant);
+
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(Objects.requireNonNull(getContext()), DividerItemDecoration.VERTICAL));
 
+        getTheAsyncTaskRestaurant(transferData, this.week, this.goodHourInFrance, this.minute);
+
         return rootView;
     }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.search_menu, menu);
+        this.menu = menu;
+        this.searchItem = menu.findItem(R.id.action_search);
+        SearchManager searchManager = (SearchManager)  Objects.requireNonNull(getActivity()).getSystemService(Context.SEARCH_SERVICE);
+        sv = (SearchView) searchItem.getActionView();
+        sv.setQueryHint(Html.fromHtml("<font color = #8D8D8D>Search restaurant</font>"));
+        sv.setBackgroundColor(getResources().getColor(R.color.colorBgNavBar));
+        // ImageView searchIconTest=sv.findViewById(androidx.appcompat.R.id.search_src_text);
+        sv.setIconifiedByDefault(false);
+        sv.setSubmitButtonEnabled(false);
+        assert searchManager != null;
+        sv.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
 
+        int searchVoiceId = sv.getContext().getResources().getIdentifier("android:id/search_voice_btn", null, null);
+        int searchId = sv.getContext().getResources().getIdentifier("android:id/search_mag_icon", null, null);
+        int id = sv.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+
+        TextView textView = (TextView) sv.findViewById(id);
+        ImageView searchIconVoice =sv.findViewById(searchVoiceId);
+        ImageView searchIcon =sv.findViewById(searchId);
+        textView.setTextColor(getResources().getColor(R.color.colortopBarLog));
+        searchIconVoice.setColorFilter(R.color.colortopBarLog);
+        searchIcon.setColorFilter(R.color.colortopBarLog);
+
+        sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                System.out.println("onQueryTextSubmit=>" +query);
+                sv.clearFocus();
+                return true;
+            }
+            @Override
+            public boolean onQueryTextChange(String query) {
+                if (!query.equals("")) {
+                    // System.out.println("pas vide");
+                    mAutoCompleteAdapter.getFilter().filter(query);
+                    if (mRecyclerViewAutoComplete.getVisibility() == View.GONE) {mRecyclerView.setVisibility(View.VISIBLE);}
+                } else {
+                    if (mRecyclerViewAutoComplete.getVisibility() == View.VISIBLE) {mRecyclerView.setVisibility(View.GONE);}
+                }
+                return true;
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    @Override
+    public void click(Place place,String placeId) {
+        LatLng latLng = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
+        sv.setQueryHint("");
+        int sizeList = this.originalGooglePlaceData.size();
+        List<Result> newGooglePlaceData = new ArrayList<>();
+        for (int i = 0; i <sizeList ; i++) {
+            Result googleNearByPlace = originalGooglePlaceData.get(i);
+            if(googleNearByPlace.getPlaceId().equals(placeId)){
+                newGooglePlaceData.add(googleNearByPlace);
+            }
+        }
+       // System.out.println("newGooglePlaceData"+newGooglePlaceData);
+        taskIsDoneGetDetailsrestaurant(newGooglePlaceData, this.nbrUser, this.week, this.goodHourInFrance, this.minute);
+        //configureRecyclerView(newGooglePlaceData, nbrUser);
+        searchItem.collapseActionView();
+        hideKeyboardFrom(Objects.requireNonNull(getContext()), Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus()));
+    }
+    public static void hideKeyboardFrom(Context context, View view) { // close the keyboard
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 /* Skipping most code and I will only show you the most essential. */
     private void getTheAsyncTaskRestaurant(Object[] transferData, String semaine, int goodHourInFrance, int minute) {
         NearByPlaces nearByPlaces = new NearByPlaces(new FragmentCallback() {
             @Override
             public void onTaskDone(List<Result> mGooglePlaceData) {
                 Query user = UserHelper.getAllUser();
+                setHasOptionsMenu(true);
                 user.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    private int nbrWorker = 0;
+                    //private int nbrWorker = 0;
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                        nbrWorker= Objects.requireNonNull(task.getResult()).size();
-                        taskIsDoneGetDetailsrestaurant(mGooglePlaceData, nbrWorker, semaine, goodHourInFrance, minute);
+                        originalGooglePlaceData = mGooglePlaceData;
+                        nbrUser= Objects.requireNonNull(task.getResult()).size();
+                        taskIsDoneGetDetailsrestaurant(mGooglePlaceData, nbrUser, semaine, goodHourInFrance, minute);
                     }
                 });
-
             }
         });
-        nearByPlaces.execute(transferData);
+        nearByPlaces.start(transferData);
     }
     private double calculateDistance(Double latitudeRestaurant, Double longitudeRestaurant) {
         double distance=0.0;
@@ -132,13 +247,12 @@ public class ListRestaurants extends Fragment{
         Location restaurantLocation = new Location("restaurantLocation");
         restaurantLocation.setLatitude(latitudeRestaurant);
         restaurantLocation.setLongitude(longitudeRestaurant);
-
-
         distance = currentLocation.distanceTo(restaurantLocation);
         return distance;
     }
-    private void taskIsDoneGetDetailsrestaurant(List<Result> mGooglePlaceData, int nbrWorker, String semaine, int goodHourInFrance, int minute) {
 
+    private void taskIsDoneGetDetailsrestaurant(List<Result> mGooglePlaceData, int nbrWorker, String semaine, int goodHourInFrance, int minute) {
+      //  System.out.println("taskIsDoneGetDetailsrestaurant"+mGooglePlaceData);
         if (!Places.isInitialized()) {
             String gApiKey = this.getString(R.string.google_maps_key);
             Places.initialize(Objects.requireNonNull(getContext()), gApiKey);
@@ -180,8 +294,7 @@ public class ListRestaurants extends Fragment{
                     }
                 });
             }
-                configureRecyclerView(mGooglePlaceData, nbrWorker);
-                myProgress.dismiss();
+
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
                     ApiException apiException = (ApiException) exception;
@@ -191,6 +304,8 @@ public class ListRestaurants extends Fragment{
             });
         }
 
+        configureRecyclerView(mGooglePlaceData, nbrWorker);
+        myProgress.dismiss();
     }
 
     private String searchRestTimeOpen(List<Period> periods, String semaine, int goodHourInFrance, int minute) {
@@ -352,7 +467,34 @@ public class ListRestaurants extends Fragment{
 
     private void configureRecyclerView(List<Result> mGooglePlaceData, int nbrWorker){
         //Configure Adapter & RecyclerView
-        ListRestaurantAdapter listRestaurantAdapter = new ListRestaurantAdapter(mGooglePlaceData, nbrWorker);
-        this.mRecyclerView.setAdapter(listRestaurantAdapter);
+       // System.out.println("configureRecyclerView"+mGooglePlaceData);
+        if(mGooglePlaceData.size()==0){ // if no restaurant
+            mTextViewNothing.setVisibility(View.VISIBLE);
+            floatBtn.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+            configBtnRestartListRestaurant(rootView);
+        }if(mGooglePlaceData.size()==1){
+            mTextViewNothing.setVisibility(View.GONE);
+            floatBtn.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            configBtnRestartListRestaurant(rootView);
+            ListRestaurantAdapter listRestaurantAdapter = new ListRestaurantAdapter(mGooglePlaceData, nbrWorker);
+            this.mRecyclerView.setAdapter(listRestaurantAdapter);
+
+        }if(mGooglePlaceData.size()>1){
+            mTextViewNothing.setVisibility(View.GONE);
+            floatBtn.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            ListRestaurantAdapter listRestaurantAdapter = new ListRestaurantAdapter(mGooglePlaceData, nbrWorker);
+            this.mRecyclerView.setAdapter(listRestaurantAdapter);
+        }
+    }
+    private void configBtnRestartListRestaurant(View view) {
+        floatBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                taskIsDoneGetDetailsrestaurant(originalGooglePlaceData, nbrUser, week, goodHourInFrance, minute);
+            }
+        });
     }
 }

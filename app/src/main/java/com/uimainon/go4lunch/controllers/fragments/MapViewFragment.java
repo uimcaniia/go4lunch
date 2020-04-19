@@ -1,19 +1,34 @@
 package com.uimainon.go4lunch.controllers.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,24 +38,39 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.uimainon.go4lunch.R;
+import com.uimainon.go4lunch.controllers.RecyclerView.PlacesAutoCompleteAdapter;
 import com.uimainon.go4lunch.controllers.activities.ProfileActivity;
 import com.uimainon.go4lunch.service.NearByPlaces;
 import com.uimainon.go4lunch.service.apiElements.Result;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 import static android.content.Context.LOCATION_SERVICE;
 
 /*import com.google.android.gms.location.LocationListener;*/
 
-public class MapViewFragment extends Fragment implements LocationListener  {
+public class MapViewFragment extends Fragment implements LocationListener, PlacesAutoCompleteAdapter.ClickListener{
 
     private ProgressDialog myProgress;
     private GoogleMap myMap;
+
+    private SearchView sv;
     private static final String MYTAG = "MYTAG";
-
-
+    private List<Place.Field> fields;
+    private Double latitudeUser;
+    private Double longitudeUser;
+private MenuItem searchItem;
+    AutocompleteSupportFragment autocompleteFragment;
+    private Menu menu;
+    private RecyclerView mRecyclerView;
+    private PlacesAutoCompleteAdapter mAutoCompleteAdapter;
 
     public static MapViewFragment newInstance() {
         return new MapViewFragment();
@@ -50,6 +80,15 @@ public class MapViewFragment extends Fragment implements LocationListener  {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActivity().setTitle("I'm Hungry!!");
+        /*setHasOptionsMenu(true);*/
+       if (!Places.isInitialized()) {
+            Places.initialize(Objects.requireNonNull(getContext()), getString(R.string.google_maps_key), Locale.FRENCH);
+        }
+        fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+/*        RectangularBounds bounds = RectangularBounds.newInstance(
+                new LatLng(this.latitudeUser-0.2, this.longitudeUser+0.2),
+                new LatLng(this.latitudeUser+0.2, this.longitudeUser-0.2));*/
+
         // Create Progress Bar.
         myProgress = new ProgressDialog(getContext());
         myProgress.setTitle("Map Loading ...");
@@ -63,6 +102,11 @@ public class MapViewFragment extends Fragment implements LocationListener  {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map_view, container, false);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frg); //use SuppoprtMapFragment for using in fragment instead of activity  MapFragment = activity   SupportMapFragment = fragment
+        FrameLayout mFram =  getActivity().findViewById(R.id.contain_result_searchview);
+        mRecyclerView = (RecyclerView)mFram.findViewById(R.id.result_searchWidget);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(Objects.requireNonNull(getContext()), DividerItemDecoration.VERTICAL));
+
         assert mapFragment != null;
         // Set callback listener, on Google Map ready.
         mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -73,23 +117,99 @@ public class MapViewFragment extends Fragment implements LocationListener  {
         });
         return rootView;
     }
+
+   @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+       inflater.inflate(R.menu.search_menu, menu);
+       this.menu = menu;
+       this.searchItem = menu.findItem(R.id.action_search);
+       SearchManager searchManager = (SearchManager)  Objects.requireNonNull(getActivity()).getSystemService(Context.SEARCH_SERVICE);
+       sv = (SearchView) searchItem.getActionView();
+
+       sv.setQueryHint(Html.fromHtml("<font color = #8D8D8D>Search restaurant</font>"));
+       sv.setBackgroundColor(getResources().getColor(R.color.colorBgNavBar));
+      // ImageView searchIconTest=sv.findViewById(androidx.appcompat.R.id.edit_query);
+       sv.setIconifiedByDefault(false);
+       sv.setSubmitButtonEnabled(false);
+       assert searchManager != null;
+       sv.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+
+       int searchVoiceId = sv.getContext().getResources().getIdentifier("android:id/search_voice_btn", null, null);
+       int searchId = sv.getContext().getResources().getIdentifier("android:id/search_mag_icon", null, null);
+       int id = sv.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+
+
+       TextView textView = (TextView) sv.findViewById(id);
+       ImageView searchIconVoice =sv.findViewById(searchVoiceId);
+       ImageView searchIcon =sv.findViewById(searchId);
+
+       textView.setTextColor(getResources().getColor(R.color.colortopBarLog));
+       searchIconVoice.setColorFilter(R.color.colortopBarLog);
+       searchIcon.setColorFilter(R.color.colortopBarLog);
+
+       sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+           @Override
+           public boolean onQueryTextSubmit(String query) {
+               System.out.println("onQueryTextSubmit=>" +query);
+               sv.clearFocus();
+               return true;
+           }
+           @Override
+           public boolean onQueryTextChange(String query) {
+               if (!query.equals("")) {
+                  // System.out.println("pas vide");
+                   mAutoCompleteAdapter.getFilter().filter(query);
+                   if (mRecyclerView.getVisibility() == View.GONE) {mRecyclerView.setVisibility(View.VISIBLE);}
+               } else {
+                   if (mRecyclerView.getVisibility() == View.VISIBLE) {mRecyclerView.setVisibility(View.GONE);}
+               }
+               return true;
+           }
+       });
+       super.onCreateOptionsMenu(menu, inflater);
+   }
+
+    @Override
+    public void click(Place place, String placeId) {
+        LatLng latLng = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(latLng)             // Sets the center of the map to location user
+                .zoom(17)                   // Sets the zoom
+                .build();                   // Creates a CameraPosition from the builder
+        myMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        MarkerOptions option = new MarkerOptions();
+        option.title(""+place.getName());
+        option.position(latLng);
+        Marker currentMarker = myMap.addMarker(option);
+        currentMarker.showInfoWindow();
+        searchItem.collapseActionView();
+        hideKeyboardFrom(Objects.requireNonNull(getContext()), Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus()));
+        final Handler handler = new Handler();//timer
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                currentMarker.remove();
+            }
+        }, 5000);
+    }
+    public static void hideKeyboardFrom(Context context, View view) { // close the keyboard
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
     private void onMyMapReady(GoogleMap googleMap) {
         // Get Google Map from Fragment.
         myMap = googleMap;
         // Set OnMapLoadedCallback Listener.
         myMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-
             @Override
             public void onMapLoaded() {
                 // Map loaded. Dismiss this dialog, removing it from the screen.
-                myProgress.dismiss();
                 showMyLocation();
             }
         });
         myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         myMap.getUiSettings().setZoomControlsEnabled(true);
         myMap.setMyLocationEnabled(true);
-
     }
 
     // Find Location provider is openning.
@@ -143,11 +263,16 @@ public class MapViewFragment extends Fragment implements LocationListener  {
             return;
         }
         if (myLocation != null) {
-/*            this.latitude = myLocation.getLatitude();
-            this.longitude = myLocation.getLongitude();*/
-            //((ProfileActivity)getActivity()).getRestaurantPosition(myLocation.getLatitude(), myLocation.getLongitude(), myMap);
+            this.latitudeUser = myLocation.getLatitude();
+            this.longitudeUser = myLocation.getLongitude();
+            setHasOptionsMenu(true);
+            mAutoCompleteAdapter = new PlacesAutoCompleteAdapter(getContext(),latitudeUser,longitudeUser);
+            mAutoCompleteAdapter.setClickListener(this);
+            mAutoCompleteAdapter.notifyDataSetChanged();
+            mRecyclerView.setAdapter(mAutoCompleteAdapter);
             getRestaurantPosition(myLocation.getLatitude(), myLocation.getLongitude(), myMap);
-            ((ProfileActivity)getActivity()).updateFirestoreUserPosition(myLocation.getLatitude(), myLocation.getLongitude());
+
+            ((ProfileActivity) Objects.requireNonNull(getActivity())).updateFirestoreUserPosition(myLocation.getLatitude(), myLocation.getLongitude());
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
             myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
@@ -161,8 +286,8 @@ public class MapViewFragment extends Fragment implements LocationListener  {
             myMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             // Add Marker to Map
             MarkerOptions option = new MarkerOptions();
-            option.title("My Location");
-            option.snippet("....");
+            option.title("Hello !");
+           /* option.snippet("....");*/
             option.position(latLng);
             Marker currentMarker = myMap.addMarker(option);
             currentMarker.showInfoWindow();
@@ -173,21 +298,17 @@ public class MapViewFragment extends Fragment implements LocationListener  {
             Log.i(MYTAG, "Location not found");
         }
     }
-    private String getUrl(Double latitude, Double longitude, String placeType) {
-        StringBuilder googleUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googleUrl.append("location=" + latitude + "," + longitude);
-        googleUrl.append("&radius=" + 1000);
-        googleUrl.append("&type=" + placeType);
-        googleUrl.append("&key=" + getString(R.string.google_maps_key));
-        return googleUrl.toString();
-    }
+
     public void getRestaurantPosition(Double latitude, Double longitude, GoogleMap mMap){
-        String url = getUrl(latitude, longitude, "restaurant");
-        Object[] transferData = new Object[4];
-        transferData[0] = mMap;
-        transferData[1] = url;
+
+        Object[] transferData = new Object[6];
+        transferData[0] = latitude;
+        transferData[1] = longitude;
         transferData[2] = getContext();
         transferData[3] = "fragmentMap";
+        transferData[4] = mMap;
+        transferData[5] = getString(R.string.google_maps_key);
+
         getTheAsyncTaskRestaurant(transferData);
         Toast.makeText(getContext(), "Searching for nearby restaurants...", Toast.LENGTH_SHORT).show();
     }
@@ -198,9 +319,10 @@ public class MapViewFragment extends Fragment implements LocationListener  {
             @Override
             public void onTaskDone(List<Result> mGooglePlaceData) {
                 taskIsDoneGetDetailsrestaurant(mGooglePlaceData);
+                myProgress.dismiss();
             }
         });
-        nearByPlaces.execute(transferData);
+        nearByPlaces.start(transferData);
     }
     private void taskIsDoneGetDetailsrestaurant(List<Result> mGooglePlaceData) {
        // System.out.println(mGooglePlaceData);

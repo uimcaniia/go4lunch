@@ -22,7 +22,7 @@ import java.util.Objects;
 public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAdapter.ViewHolder>{
 
     private List<Result> mGooglePlaceData;
-    private int nbrWorker;
+    private int nbrWorker = 0;
     private Double firstStar = (1.00/3)*1;
     private Double secondStar = (1.00/3)*2;
     private Double thirdStar = (1.00/3)*3;
@@ -38,8 +38,6 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
     public ListRestaurantAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_fragment_list_restaurant, parent, false);
         return new ListRestaurantAdapter.ViewHolder(view);
-        //return new ListRestaurantAdapter.ViewHolder(LayoutInflater.from(parent.getContext())
-               // .inflate(R.layout.item_fragment_list_restaurant, parent, false));
     }
 
     private int searchNbrStrars(Double nbrVote){

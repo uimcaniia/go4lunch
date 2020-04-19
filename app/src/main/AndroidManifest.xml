@@ -70,6 +70,10 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
+       <provider
+            android:name="com.uimainon.go4lunch.controllers.fragments.PlacesSuggestionProvider"
+            android:authorities="com.uimainon.go4lunch.controllers.fragments.search_suggestion_provider"
+            android:syncable="false"/>
         <activity
             android:name=".controllers.activities.DetailsRestaurantActivity"
             android:theme="@style/AppTheme.NoTitle.NoActionBar" />

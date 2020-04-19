@@ -41,8 +41,6 @@ public class ListPeopleAdapter extends FirestoreRecyclerAdapter<User, UserViewHo
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_fragment_list_workmates, parent, false);
         return new UserViewHolder.ViewHolder(view);
-/*        return new UserViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_fragment_list_workmates, parent, false));*/
     }
 
     @Override
