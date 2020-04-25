@@ -97,7 +97,6 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
 
             Task<DocumentSnapshot> query = UserHelper.getUser(uid);
             query.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
-
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {

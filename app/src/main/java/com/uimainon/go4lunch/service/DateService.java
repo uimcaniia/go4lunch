@@ -4,22 +4,32 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class DateService {
 
-    private Calendar mCalendar = Calendar.getInstance();
+   // private Calendar mCalendar = Calendar.getInstance();
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.FRANCE);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    Date mDate = sdf.parse(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.DAY_OF_MONTH)+" "+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND));
 
-    private int mYear = mCalendar.get(Calendar.YEAR);
-    private int mMonth = mCalendar.get(Calendar.MONTH)+1;
-    private int mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
+    private int mYear = cal.get(Calendar.YEAR);
+    private int mMonth = cal.get(Calendar.MONTH)+1;
+    private int mDay = cal.get(Calendar.DAY_OF_MONTH);
 
-    private int mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
-    private int mMinute = mCalendar.get(Calendar.MINUTE);
+    private int mHour = cal.get(Calendar.HOUR_OF_DAY);
+    private int mMinute = cal.get(Calendar.MINUTE);
+    private int mSeconde = cal.get(Calendar.SECOND);
 
-    private int nbrWeek = mCalendar.get(Calendar.DAY_OF_WEEK);
+    private int nbrWeek = cal.get(Calendar.DAY_OF_WEEK);
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    public DateService() throws ParseException {
+    }
 
+    // private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+   public Calendar giveFrenchCalendar(){return cal;}
+    public Date giveDateToday(){return mDate;}
     public int giveYear(){
         return mYear;
     }
@@ -32,9 +42,7 @@ public class DateService {
     public int giveHour(){
         return mHour;
     }
-    public int giveMinute(){
-        return mMinute;
-    }
+    public int giveMinute(){return mMinute;}
     public int givedayOfWeek(){return nbrWeek;}
 
     public String giveTheDayOfTheWeek(int dayToday){
@@ -67,23 +75,12 @@ public class DateService {
      */
     public int giveTheGoodHourInFrance(int year, int hour, Date todayToCompareWithSaison) throws ParseException {
 
-        Date eteInYear = sdf.parse(year+"-03-31");
-        Date hiversInYear = sdf.parse(year+"-10-27");
-        Date eteAfterYear = sdf.parse((year+1)+"-03-31");
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.FRANCE);
+        SimpleDateFormat dfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        int giveGoodHour = hour;
+        Date mDate = dfm.parse(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.DAY_OF_MONTH)+" "+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND));
 
-        int changeHourEte =  todayToCompareWithSaison.compareTo(eteInYear);
-        int changeHourHiver =  todayToCompareWithSaison.compareTo(hiversInYear);
-        int changeHourAfter =  todayToCompareWithSaison.compareTo(eteAfterYear);
-
-        if((changeHourEte == 0)||(changeHourEte > 0)&&(changeHourHiver < 0)){
-            giveGoodHour = hour+2;
-        }
-        if((changeHourHiver == 0)||(changeHourHiver > 0)&&(changeHourAfter < 0)){
-            giveGoodHour = hour+1;
-        }
-        return giveGoodHour;
+        return cal.get(Calendar.HOUR_OF_DAY);
     }
 
     /**

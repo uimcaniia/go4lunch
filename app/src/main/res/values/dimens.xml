@@ -35,4 +35,7 @@
     <dimen name="default_text_size_name_restau_list_view">15sp</dimen>
     <dimen name="default_text_size_button">18sp</dimen>
     <dimen name="default_text_size_mini">8sp</dimen>
+
+    <dimen name="setting_title">40sp</dimen>
+    <dimen name="setting_subtitle">20sp</dimen>
 </resources>

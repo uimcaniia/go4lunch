@@ -1,16 +1,20 @@
 package com.uimainon.go4lunch.controllers.activities;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,13 +29,18 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.base.BaseActivity;
@@ -40,6 +49,15 @@ import com.uimainon.go4lunch.controllers.fragments.ListRestaurants;
 import com.uimainon.go4lunch.controllers.fragments.MapViewFragment;
 import com.uimainon.go4lunch.controllers.fragments.SettingFragment;
 import com.uimainon.go4lunch.models.User;
+import com.uimainon.go4lunch.service.DateService;
+import com.uimainon.go4lunch.service.Notification;
+
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -64,10 +82,8 @@ private Menu menu;
     String email = "";
     String idRestaurant = "null";
     Uri imageProfil;
-
     Double latitudeUser;
     Double longitudeUser;
-    private GoogleMap myMap;
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -82,7 +98,6 @@ private Menu menu;
     private static final int UPDATE_USERNAME = 30;
 
     private String idUser = "";
-    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,8 +110,75 @@ private Menu menu;
         this.configureBottomView();
 
         this.configureDrawerLayout();
-       // this.configureNavigationView();
         this.showFirstFragment();
+    }
+
+    private void startAlarm(boolean isNotification, boolean isRepeat) throws ParseException {
+      //  create a method for scheduling the notification. This is where you set the time it:
+        // SET TIME HERE
+        StringBuffer passToNotification = new StringBuffer();
+        DateService mDate = new DateService();
+        Calendar calendar= mDate.giveFrenchCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY,11);
+        calendar.set(Calendar.MINUTE,28);
+
+        if (!Places.isInitialized()) {
+            String gApiKey = getString(R.string.google_maps_key);
+            Places.initialize(getApplicationContext(), gApiKey);
+        }
+        PlacesClient placesClient = Places.createClient(getApplicationContext());
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ADDRESS, Place.Field.NAME);
+        FetchPlaceRequest request = FetchPlaceRequest.newInstance(idRestaurant, placeFields);
+        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            passToNotification.append(place.getName()+" - "+place.getAddress());
+            Query query = UserHelper.getAllUser();
+            query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    List<User> listUser = new ArrayList<>();
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            User userModel = document.toObject(User.class);
+                            assert userModel != null;
+                            if(userModel.getIdRestaurant().equals(idRestaurant)){
+                                listUser.add(userModel);
+                            }
+                        }
+                        if(listUser.size() == 0){
+                            passToNotification.append(". No worker eat with you");
+                        }else{
+                            passToNotification.append(". Eat with you : ");
+                            for(int i = 0 ; i < listUser.size() ; i++){
+                                if((i == (listUser.size()-1)) && (!listUser.get(i).getUid().equals(idUser))){
+                                    passToNotification.append(listUser.get(i).getUsername());
+                                }if((i == (listUser.size()-2)) && (!listUser.get(i).getUid().equals(idUser))){
+                                    passToNotification.append(listUser.get(i).getUsername()+" and ");
+                                }if((i != (listUser.size()-1)) && (i != (listUser.size()-2)) && (!listUser.get(i).getUid().equals(idUser))){
+                                    passToNotification.append(listUser.get(i).getUsername() + ", ");
+                                }
+                            }
+                        }
+                        AlarmManager manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                        Intent myIntent;
+                        PendingIntent pendingIntent;
+                        myIntent = new Intent(ProfileActivity.this, Notification.class);
+
+                        Notification receiver = new Notification();
+                        IntentFilter filter = new IntentFilter(".service.Notification");
+                        registerReceiver(receiver, filter);
+System.out.println("send that => "+passToNotification);
+                        myIntent.putExtra("restaurant", (Serializable) passToNotification);//(Serializable) passToNotification
+                        pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),0,myIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        if(!isRepeat)
+                            manager.set(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime()+3000,pendingIntent);
+                        else
+                            manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY,pendingIntent);
+                    }
+                }
+            });
+        });
     }
 
     @Override
@@ -233,7 +315,6 @@ private Menu menu;
             idUser = this.getCurrentUser().getUid();
             Task<DocumentSnapshot> query = UserHelper.getUser(idUser);
             query.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
-
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
@@ -241,7 +322,15 @@ private Menu menu;
                         if (document.exists()) {
                             User userConnect = document.toObject(User.class);
                             idRestaurant = userConnect.getIdRestaurant();
+                        /*   restaurantName = userConnect.getNameRestaurant();*/
                             configureNavigationView();
+                            if(!idRestaurant.equals("null")){
+                                try {
+                                    startAlarm(true,true);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         } else {
                             System.out.println( "No such document");
                         }

@@ -52,7 +52,6 @@ import com.uimainon.go4lunch.service.apiElements.Result;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -86,7 +85,11 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDate = new DateService();
+        try {
+            mDate = new DateService();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         getActivity().setTitle("I'm Hungry!");
         myProgress = new ProgressDialog(getContext());
         myProgress.setTitle("Searching all restaurant. Loading ...");
@@ -116,17 +119,10 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
         transferData[4] = myMap;
         transferData[5] = getString(R.string.google_maps_key);
 
-        DateService mDate = new DateService();
         int nbrWeek = mDate.givedayOfWeek();
-        this.goodHourInFrance = 0;
-        Date today = mDate.formatDateToCompare(mDate.giveYear(), mDate.giveMonth(), mDate.giveDay());
-        try {
-            this.goodHourInFrance = mDate.giveTheGoodHourInFrance(mDate.giveYear(), mDate.giveHour(), today);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
         this.week = mDate.giveTheDayOfTheWeek(nbrWeek);
         this.minute = mDate.giveMinute();
+        this.goodHourInFrance = mDate.giveHour();
 
         FrameLayout mFram =  getActivity().findViewById(R.id.contain_result_searchview);
         mRecyclerViewAutoComplete = (RecyclerView)mFram.findViewById(R.id.result_searchWidget);
@@ -208,9 +204,7 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
                 newGooglePlaceData.add(googleNearByPlace);
             }
         }
-       // System.out.println("newGooglePlaceData"+newGooglePlaceData);
         taskIsDoneGetDetailsrestaurant(newGooglePlaceData, this.nbrUser, this.week, this.goodHourInFrance, this.minute);
-        //configureRecyclerView(newGooglePlaceData, nbrUser);
         searchItem.collapseActionView();
         hideKeyboardFrom(Objects.requireNonNull(getContext()), Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus()));
     }
