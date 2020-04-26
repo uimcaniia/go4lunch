@@ -7,7 +7,6 @@ import android.os.Build;
 import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
@@ -16,14 +15,11 @@ import androidx.core.content.ContextCompat;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.uimainon.go4lunch.R;
+import com.uimainon.go4lunch.api.PreferenceHelper;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.base.BaseActivity;
-import com.uimainon.go4lunch.models.User;
 
 import java.util.Arrays;
 
@@ -44,7 +40,18 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
     private String uid = "null";
     private String email = "null";
     private String idRestaurant = "null";
-    private  String nameRestaurant = "null";
+    private String nameRestaurant = "null";
+
+    private int monday = 1;
+    private int tuesday = 1;
+    private int wednesday = 1;
+    private int thursday = 1;
+    private int friday = 1;
+    private int saturday = 0;
+    private int sunday = 0;
+    private int hour = 12;
+    private int minute = 0;
+    private String idUserPref;
 
 
     //FOR DATA
@@ -94,34 +101,12 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
             username = this.getCurrentUser().getDisplayName();
             uid = this.getCurrentUser().getUid();
             email = this.getCurrentUser().getEmail();
-
-            Task<DocumentSnapshot> query = UserHelper.getUser(uid);
-            query.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            User userConnect = document.toObject(User.class);
-                            idRestaurant = userConnect.getIdRestaurant();
-                            nameRestaurant = userConnect.getNameRestaurant();
-                            createUserConnect(uid, username, urlPicture, email,idRestaurant, nameRestaurant);
-                           // UserHelper.createUser(uid, username, urlPicture, email, idRestaurant, nameRestaurant);
-                        } else {
-                            System.out.println( "No such document");
-                        }
-                    } else {
-                        System.out.println("get failed");
-                    }
-                }
-
-            });
-
-        }
+            createUserConnect( uid, username, urlPicture, email);
+         }
     }
-
-    private void createUserConnect(String uid,String  username,String  urlPicture, String email,String idRestaurant, String nameRestaurant) {
+    private void createUserConnect(String uid,String  username,String  urlPicture, String email) {
         UserHelper.createUser(uid, username, urlPicture, email, idRestaurant, nameRestaurant).addOnFailureListener(this.onFailureListener());
+        PreferenceHelper.createPreference(monday, tuesday, wednesday, thursday, friday,saturday, sunday, hour, minute ,uid);
     }
 
     // --------------------
@@ -223,5 +208,4 @@ public class LoginActivity  extends BaseActivity implements ActivityCompat.OnReq
             }
         }
     }
-
 }

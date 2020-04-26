@@ -16,6 +16,11 @@ public class VoteHelper {
                 .collection(COLLECTION_NAME);
                }
 
+/*    public static Query getAllVoteOfTheUser(){
+        CollectionReference mAllRestaurant = RestaurantHelper.getRestaurantsCollection();
+        return RestaurantHelper.getRestaurantsCollection();
+    }*/
+
     public static void createVoteForRestaurant(String idRestaurant, String idUser) {
         DocumentReference mFirestoreProfiles = RestaurantHelper.getRestaurantsCollection().document(idRestaurant).collection(COLLECTION_NAME).document(idUser);
         Vote vote = new Vote(idUser);
@@ -28,12 +33,10 @@ public class VoteHelper {
     }
     // --- DELETE ---
     public static Task<Void> deleteVoteForRestaurant(String idRestaurant, String idUser) {
-
         return RestaurantHelper.getRestaurantsCollection()
                 .document(idRestaurant)
                 .collection(COLLECTION_NAME)
                 .document(idUser)
                 .delete();
     }
-
 }

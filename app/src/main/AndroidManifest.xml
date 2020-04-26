@@ -71,20 +71,21 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <receiver android:name=".service.BootReceiver"
+<!--        <receiver android:name=".service.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
-        </receiver>
-        <receiver android:name=".service.Notification"/>
-        <service
-            android:name=".service.MyService"
+        </receiver>-->
+        <receiver android:name=".service.Notification"
             android:enabled="true"
             android:exported="true"
-            android:permission="TODO" />
+            android:label="RestartServiceWhenStopped"/>
+        <service
+            android:name=".service.MyService"
+            android:enabled="true" />
 
        <provider
             android:name="com.uimainon.go4lunch.controllers.fragments.PlacesSuggestionProvider"

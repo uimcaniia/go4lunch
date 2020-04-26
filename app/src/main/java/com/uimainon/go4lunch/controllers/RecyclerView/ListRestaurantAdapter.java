@@ -88,7 +88,7 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
         Result result = mGooglePlaceData.get(position);
         holder.itemNameRestaurant.setText(result.getName());
         holder.itemAdressRestaurant.setText(result.getVicinity());
-        int nbrStars = searchNbrStrars(nbrWorker/result.getNbrVote());
+        int nbrStars = searchNbrStrars((double)nbrWorker/result.getNbrVote());
         showNumberStarOnView(holder, nbrStars);
         holder.itemAdressRestaurant.setText(result.getVicinity());
         int castDistance = (int) result.getDistance();

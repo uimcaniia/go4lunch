@@ -1,6 +1,5 @@
 package com.uimainon.go4lunch.controllers.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -14,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SearchView;
@@ -45,6 +43,7 @@ import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.controllers.RecyclerView.ListRestaurantAdapter;
 import com.uimainon.go4lunch.controllers.RecyclerView.PlacesAutoCompleteAdapter;
+import com.uimainon.go4lunch.controllers.activities.ProfileActivity;
 import com.uimainon.go4lunch.service.DateService;
 import com.uimainon.go4lunch.service.NearByPlaces;
 import com.uimainon.go4lunch.service.apiElements.Result;
@@ -181,11 +180,17 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
             @Override
             public boolean onQueryTextChange(String query) {
                 if (!query.equals("")) {
-                    // System.out.println("pas vide");
+                    mRecyclerViewAutoComplete.setVisibility(View.VISIBLE);
                     mAutoCompleteAdapter.getFilter().filter(query);
-                    if (mRecyclerViewAutoComplete.getVisibility() == View.GONE) {mRecyclerView.setVisibility(View.VISIBLE);}
+                   /* if (mRecyclerViewAutoComplete.getVisibility() == View.GONE) {
+                        mRecyclerView.setVisibility(View.VISIBLE);
+                    }*/
                 } else {
-                    if (mRecyclerViewAutoComplete.getVisibility() == View.VISIBLE) {mRecyclerView.setVisibility(View.GONE);}
+                    mRecyclerViewAutoComplete.setVisibility(View.GONE);
+
+                    /*if (mRecyclerViewAutoComplete.getVisibility() == View.VISIBLE) {
+                        mRecyclerView.setVisibility(View.GONE);
+                    }*/
                 }
                 return true;
             }
@@ -206,12 +211,13 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
         }
         taskIsDoneGetDetailsrestaurant(newGooglePlaceData, this.nbrUser, this.week, this.goodHourInFrance, this.minute);
         searchItem.collapseActionView();
-        hideKeyboardFrom(Objects.requireNonNull(getContext()), Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus()));
+        ((ProfileActivity) Objects.requireNonNull(getActivity())).hideKeyboardFrom(Objects.requireNonNull(getContext()));
+       // ProfileActivity.hideKeyboardFrom(Objects.requireNonNull(getContext()));//, Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus())
     }
-    public static void hideKeyboardFrom(Context context, View view) { // close the keyboard
+/*    public static void hideKeyboardFrom(Context context, View view) { // close the keyboard
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
+    }*/
 /* Skipping most code and I will only show you the most essential. */
     private void getTheAsyncTaskRestaurant(Object[] transferData, String semaine, int goodHourInFrance, int minute) {
         NearByPlaces nearByPlaces = new NearByPlaces(new FragmentCallback() {
@@ -288,6 +294,8 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
                     }
                 });
             }
+                configureRecyclerView(mGooglePlaceData, nbrWorker);
+                myProgress.dismiss();
 
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
@@ -298,8 +306,7 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
             });
         }
 
-        configureRecyclerView(mGooglePlaceData, nbrWorker);
-        myProgress.dismiss();
+
     }
 
     private String searchRestTimeOpen(List<Period> periods, String semaine, int goodHourInFrance, int minute) {
@@ -487,6 +494,9 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
         floatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                searchItem.collapseActionView();
+                ((ProfileActivity) Objects.requireNonNull(getActivity())).hideKeyboardFrom(Objects.requireNonNull(getContext()));
+               // ProfileActivity.hideKeyboardFrom(Objects.requireNonNull(getContext()));//, Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus())
                 taskIsDoneGetDetailsrestaurant(originalGooglePlaceData, nbrUser, week, goodHourInFrance, minute);
             }
         });

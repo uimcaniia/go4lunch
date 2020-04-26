@@ -1,6 +1,5 @@
 package com.uimainon.go4lunch.controllers.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -18,7 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SearchView;
@@ -183,7 +181,9 @@ private MenuItem searchItem;
         Marker currentMarker = myMap.addMarker(option);
         currentMarker.showInfoWindow();
         searchItem.collapseActionView();
-        hideKeyboardFrom(Objects.requireNonNull(getContext()), Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus()));
+        ((ProfileActivity) Objects.requireNonNull(getActivity())).hideKeyboardFrom(Objects.requireNonNull(getContext()));
+        //ProfileActivity.hideKeyboardFrom(Objects.requireNonNull(getContext()));//, Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus())
+/*        hideKeyboardFrom(Objects.requireNonNull(getContext()), Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus()));*/
         final Handler handler = new Handler();//timer
         handler.postDelayed(new Runnable() {
             @Override
@@ -192,10 +192,7 @@ private MenuItem searchItem;
             }
         }, 5000);
     }
-    public static void hideKeyboardFrom(Context context, View view) { // close the keyboard
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
+
     private void onMyMapReady(GoogleMap googleMap) {
         // Get Google Map from Fragment.
         myMap = googleMap;

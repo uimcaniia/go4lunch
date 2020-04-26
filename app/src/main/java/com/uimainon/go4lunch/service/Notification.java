@@ -1,23 +1,17 @@
 package com.uimainon.go4lunch.service;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
-import android.os.Build;
-
-import androidx.core.app.NotificationCompat;
-
-import com.uimainon.go4lunch.R;
-import com.uimainon.go4lunch.controllers.activities.ProfileActivity;
-
-import java.util.Objects;
+import android.util.Log;
 
 public class Notification extends BroadcastReceiver {
-
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.i(Notification.class.getSimpleName(), "Service Stops! Oooooooooooooppppssssss!!!!");
+        context.startService(new Intent(context, MyService.class));;
+    }
+/*
     private final int NOTIFICATION_ID = 007;
     private final String NOTIFICATION_TAG = "FIREBASEOC";
     private String restaurantName="pas de restaurant choisit";
@@ -62,7 +56,10 @@ public class Notification extends BroadcastReceiver {
             notificationManager.createNotificationChannel(mChannel);
         }
         notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, notificationBuilder.build());
-      /*  context.unregisterReceiver(this);*/
+      */
+/*  context.unregisterReceiver(this);*//*
+
     }
+*/
 
 }

@@ -9,11 +9,11 @@ public class BootReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent intent)
     {
-        // Your code to execute when Boot Completd
+/*        // Your code to execute when Boot Completd
         Intent i = new Intent(context,MyService.class);
         context.startService(i);
 
-        System.out.println("Booting Completed");
+        System.out.println("Booting Completed");*/
 
     }
 
