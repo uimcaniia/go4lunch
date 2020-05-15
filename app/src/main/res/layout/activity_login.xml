@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/ic_logo_auth"
-            android:layout_margin="@dimen/default_large_margin"/>
+            android:layout_marginTop="@dimen/size_container_picto_restaurant"/>
 
         <!-- TITLE Go4Lunch -->
         <TextView
@@ -37,6 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#fff"
+            android:textStyle="italic"
             android:textSize="@dimen/default_text_size"
             android:text="@string/main_activity_description"
             android:layout_margin="@dimen/default_margin"/>

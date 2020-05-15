@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/title_info_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginVertical="@dimen/setting_title"
+            android:layout_marginEnd="8dp"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="Your profil"
+            android:background="@drawable/button_radius_facebook"
+            android:textColor="@color/colorBgNavBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/setting_subtitle"
+            android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_info_user"
+            android:id="@+id/contain_info_user"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/delete_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:textAlignment="textStart"
+                android:textSize="20sp"
+                android:text=" Delete your account ?"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contain_info_user" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"></View>
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="40dp"
+                android:layout_height="25dp"
+                android:id="@+id/confirm_delete_profil"
+                android:layout_marginEnd="@dimen/setting_title"
+                android:background="@drawable/button_radius_facebook"
+                android:textColor="@color/colorBgNavBar"
+                android:text="YES">
+            </androidx.appcompat.widget.AppCompatButton>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <TextView
+            android:id="@+id/title_notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginVertical="@dimen/setting_title"
+            android:background="@drawable/button_radius_facebook"
+            android:textColor="@color/colorBgNavBar"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="Notification"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contain_info_user" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/contain_info_nortification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_notification">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/setting_subtitle"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Choise your day"
+                android:textAlignment="textStart"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contain_info_user" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/notification_monday"
+                android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+                android:layout_height="wrap_content"
+                android:text="Monday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/notification_tuesday"
+                android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+                android:layout_height="wrap_content"
+                android:text="Tuesday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/notification_wednesday"
+                android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+                android:layout_height="wrap_content"
+                android:text="Wednesday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/notification_thursday"
+                android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+                android:layout_height="wrap_content"
+                android:text="Thursday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/notification_friday"
+                android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Friday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/notification_saturday"
+                android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saturday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/notification_sunday"
+                android:layout_marginHorizontal="@dimen/avatar_size_detail_restaurant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sunday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/setting_subtitle"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Choise hour for receive"
+                android:textAlignment="textStart"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contain_info_user" />
+
+            <TimePicker
+                android:id="@+id/timePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/setting_title"
+                android:background="#00FFFFFF"
+                android:timePickerMode="spinner" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_valid_preference"
+            style="@style/Widget.MaterialComponents.FloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:layout_gravity="end"
+            android:padding="2dp"
+            app:fabSize="normal"
+            android:layout_margin="16dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            app:fab_colorNormal="#FAF7F7"
+            android:scaleType="center"
+            app:fab_icon="@drawable/ic_green_check" />
+
+
+
+</RelativeLayout>

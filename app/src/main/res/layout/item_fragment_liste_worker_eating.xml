@@ -11,6 +11,7 @@
             android:id="@+id/circle_avatar_worker_eating"
             android:layout_width="@dimen/avatar_size_detail_restaurant"
             android:layout_height="@dimen/avatar_size_detail_restaurant"
+            android:background="@drawable/edit_border"
             android:layout_marginStart="@dimen/default_large_margin_list_restaurant"
             tools:srcCompat="@drawable/circle_avatar"
             android:contentDescription="TODO" />
@@ -20,8 +21,9 @@
             android:layout_height="wrap_content"
             android:text="scarlette is joining"
             android:textStyle="bold"
+            android:textColor="@color/colorBlurdNavBar"
             android:paddingStart="@dimen/default_large_margin_chat"
-            android:textSize="@dimen/default_text_size"
+            android:textSize="@dimen/default_text_size_name_restau_list_view"
             android:contentDescription="@string/scarlette_is_joining"/>
 
 

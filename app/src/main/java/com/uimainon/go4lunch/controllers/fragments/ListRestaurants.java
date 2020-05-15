@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -45,6 +43,7 @@ import com.uimainon.go4lunch.controllers.RecyclerView.ListRestaurantAdapter;
 import com.uimainon.go4lunch.controllers.RecyclerView.PlacesAutoCompleteAdapter;
 import com.uimainon.go4lunch.controllers.activities.ProfileActivity;
 import com.uimainon.go4lunch.service.DateService;
+import com.uimainon.go4lunch.service.DesignConfiguration;
 import com.uimainon.go4lunch.service.NearByPlaces;
 import com.uimainon.go4lunch.service.apiElements.Result;
 
@@ -133,8 +132,8 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
         mRecyclerViewAutoComplete.setAdapter(mAutoCompleteAdapter);
 
         mRecyclerView = (RecyclerView)rootView.findViewById(R.id.list_restaurant);
-      /*  */
-        mTextViewNothing = rootView.findViewById(R.id.textNoRestaurant); // s'affichera si aucune réunion existe
+
+        mTextViewNothing = rootView.findViewById(R.id.textNoRestaurant); // s'affichera si aucun restaurant
         floatBtn = rootView.findViewById(R.id.btn_refresh_restaurant);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -151,24 +150,8 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
         this.searchItem = menu.findItem(R.id.action_search);
         SearchManager searchManager = (SearchManager)  Objects.requireNonNull(getActivity()).getSystemService(Context.SEARCH_SERVICE);
         sv = (SearchView) searchItem.getActionView();
-        sv.setQueryHint(Html.fromHtml("<font color = #8D8D8D>Search restaurant</font>"));
-        sv.setBackgroundColor(getResources().getColor(R.color.colorBgNavBar));
-        // ImageView searchIconTest=sv.findViewById(androidx.appcompat.R.id.search_src_text);
-        sv.setIconifiedByDefault(false);
-        sv.setSubmitButtonEnabled(false);
-        assert searchManager != null;
-        sv.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-
-        int searchVoiceId = sv.getContext().getResources().getIdentifier("android:id/search_voice_btn", null, null);
-        int searchId = sv.getContext().getResources().getIdentifier("android:id/search_mag_icon", null, null);
-        int id = sv.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
-
-        TextView textView = (TextView) sv.findViewById(id);
-        ImageView searchIconVoice =sv.findViewById(searchVoiceId);
-        ImageView searchIcon =sv.findViewById(searchId);
-        textView.setTextColor(getResources().getColor(R.color.colortopBarLog));
-        searchIconVoice.setColorFilter(R.color.colortopBarLog);
-        searchIcon.setColorFilter(R.color.colortopBarLog);
+        DesignConfiguration designConfig = new DesignConfiguration();
+        designConfig. configureSearchViewDesign(sv, searchManager, getActivity(), "<font color = #8D8D8D>Search restaurant</font>");
 
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -182,15 +165,8 @@ public class ListRestaurants extends Fragment implements PlacesAutoCompleteAdapt
                 if (!query.equals("")) {
                     mRecyclerViewAutoComplete.setVisibility(View.VISIBLE);
                     mAutoCompleteAdapter.getFilter().filter(query);
-                   /* if (mRecyclerViewAutoComplete.getVisibility() == View.GONE) {
-                        mRecyclerView.setVisibility(View.VISIBLE);
-                    }*/
                 } else {
                     mRecyclerViewAutoComplete.setVisibility(View.GONE);
-
-                    /*if (mRecyclerViewAutoComplete.getVisibility() == View.VISIBLE) {
-                        mRecyclerView.setVisibility(View.GONE);
-                    }*/
                 }
                 return true;
             }

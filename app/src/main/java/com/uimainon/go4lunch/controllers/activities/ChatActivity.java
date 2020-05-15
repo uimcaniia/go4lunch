@@ -57,6 +57,10 @@ public class ChatActivity extends BaseActivity implements ChatAdapter.Listener {
     EditText editTextMessage;
     @BindView(R.id.activity_worker_chat_image_chosen_preview) ImageView imageViewPreview;
 
+    @BindView(R.id.activity_worker_chat_restaurant_chat_button) ImageButton btnchatRestau;
+    @BindView(R.id.activity_worker_chat_work_chat_button) ImageButton btnChatWorker;
+    @BindView(R.id.activity_worker_chat_commute_chat_button) ImageButton btnChatCommute;
+
     // FOR DATA
     // 2 - Declaring Adapter and data
     private ChatAdapter workerChatAdapter;
@@ -86,6 +90,8 @@ public class ChatActivity extends BaseActivity implements ChatAdapter.Listener {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         this.configureRecyclerView(CHAT_NAME_RESTAURANT);
+        this.setTitle("Chat restaurant!");
+        btnchatRestau.setBackgroundColor(getResources().getColor(R.color.colorChatDark));
         configureToolbar();
         this.getCurrentUserFromFirestore();
 
@@ -124,12 +130,24 @@ public class ChatActivity extends BaseActivity implements ChatAdapter.Listener {
         // 8 - Re-Configure the RecyclerView depending chosen chat
         switch (Integer.valueOf(imageButton.getTag().toString())){
             case 10:
+                this.setTitle("Chat restaurant!");
+                btnchatRestau.setBackgroundColor(getResources().getColor(R.color.colorChatDark));
+                btnChatWorker.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                btnChatCommute.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 this.configureRecyclerView(CHAT_NAME_RESTAURANT);
                 break;
             case 20:
+                this.setTitle("Chat work!");
+                btnchatRestau.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                btnChatWorker.setBackgroundColor(getResources().getColor(R.color.colorChatDark));
+                btnChatCommute.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 this.configureRecyclerView(CHAT_NAME_WORK);
                 break;
             case 30:
+                this.setTitle("Chat commute!");
+                btnchatRestau.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                btnChatWorker.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                btnChatCommute.setBackgroundColor(getResources().getColor(R.color.colorChatDark));
                 this.configureRecyclerView(CHAT_NAME_COMMUTE);
                 break;
         }

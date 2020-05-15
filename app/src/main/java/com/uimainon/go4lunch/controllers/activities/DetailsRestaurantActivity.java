@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -94,7 +96,7 @@ public class DetailsRestaurantActivity extends BaseActivity {
             Places.initialize(this, gApiKey);
         }
         PlacesClient placesClient = Places.createClient(this);
-
+        setStatusBarTranslucent(true);
         idRestaurant = bundle.getString("idRestaurant");
         this.configureRecyclerView();
         configBtnLikeThisRestaurant();
@@ -143,6 +145,14 @@ public class DetailsRestaurantActivity extends BaseActivity {
                 System.out.println("Place not found: ");
             }
         });
+    }
+
+    protected void setStatusBarTranslucent(boolean makeTranslucent) {
+        View v = findViewById(R.id.bellow_actionbar);
+        if (v != null) {
+            Window w = getWindow(); // in Activity's onCreate() for instance
+            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
     }
 
     private void configStars(int nbrUser) {
@@ -284,7 +294,7 @@ public class DetailsRestaurantActivity extends BaseActivity {
         if(websiteUri == null){
             imgWebsiteRestaurant.setImageResource(R.drawable.ic_link_off_24px);
         }else {
-            imgWebsiteRestaurant.setImageResource(R.drawable.ic_language_24px);
+            imgWebsiteRestaurant.setImageResource(R.drawable.ic_public_24px);
             imgWebsiteRestaurant.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

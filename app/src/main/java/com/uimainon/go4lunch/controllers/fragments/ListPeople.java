@@ -3,19 +3,15 @@ package com.uimainon.go4lunch.controllers.fragments;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +22,7 @@ import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.api.UserHelper;
 import com.uimainon.go4lunch.controllers.RecyclerView.ListPeopleAdapter;
 import com.uimainon.go4lunch.models.User;
+import com.uimainon.go4lunch.service.DesignConfiguration;
 
 import java.util.Objects;
 
@@ -39,7 +36,6 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
 
     public static ListPeople newInstance() {
         return new ListPeople();
-
     }
 
     @Override
@@ -57,7 +53,7 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
         idUser = this.getArguments().getString("idUser");
         mRecyclerView = (RecyclerView)rootView.findViewById(R.id.list_workmates);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+       /* mRecyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));*/
         configureRecyclerView(context);
         return rootView;
     }
@@ -68,24 +64,9 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
         this.searchItem = menu.findItem(R.id.action_search);
         SearchManager searchManager = (SearchManager)  Objects.requireNonNull(getActivity()).getSystemService(Context.SEARCH_SERVICE);
         sv = (SearchView) searchItem.getActionView();
-        sv.setQueryHint(Html.fromHtml("<font color = #8D8D8D>Search workmates</font>"));
-        sv.setBackgroundColor(getResources().getColor(R.color.colorBgNavBar));
-        // ImageView searchIconTest=sv.findViewById(androidx.appcompat.R.id.search_src_text);
-        sv.setIconifiedByDefault(false);
-        sv.setSubmitButtonEnabled(false);
-        assert searchManager != null;
-        sv.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        DesignConfiguration designConfig = new DesignConfiguration();
+        designConfig. configureSearchViewDesign(sv, searchManager, getActivity(), "<font color = #8D8D8D>Search workmates</font>");
 
-        int searchVoiceId = sv.getContext().getResources().getIdentifier("android:id/search_voice_btn", null, null);
-        int searchId = sv.getContext().getResources().getIdentifier("android:id/search_mag_icon", null, null);
-        int id = sv.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
-
-        TextView textView = (TextView) sv.findViewById(id);
-        ImageView searchIconVoice =sv.findViewById(searchVoiceId);
-        ImageView searchIcon =sv.findViewById(searchId);
-        textView.setTextColor(getResources().getColor(R.color.colortopBarLog));
-        searchIconVoice.setColorFilter(R.color.colortopBarLog);
-        searchIcon.setColorFilter(R.color.colortopBarLog);
         super.onCreateOptionsMenu(menu, inflater);
     }
     private void configureRecyclerView(Context context){
@@ -93,7 +74,6 @@ public class ListPeople extends Fragment implements ListPeopleAdapter.Listener{
         ListPeopleAdapter listPeopleAdapter = new ListPeopleAdapter(generateOptionsForAdapter(UserHelper.getAllUser()), Glide.with(context), this, idUser);
         this.mRecyclerView.setAdapter(listPeopleAdapter);
     }
-
 
     // 6 - Create options for RecyclerView from a Query
     private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query){

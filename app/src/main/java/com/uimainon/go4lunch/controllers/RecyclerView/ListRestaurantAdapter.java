@@ -114,7 +114,7 @@ public class ListRestaurantAdapter extends RecyclerView.Adapter<ListRestaurantAd
                     .apply(RequestOptions.centerCropTransform())
                     .into(holder.restaurantImage);
         }else{
-           holder.restaurantImage.setImageResource(R.drawable.ic_logo_auth);
+           holder.restaurantImage.setImageResource(R.mipmap.ic_launcher_go);
         }
 
     }

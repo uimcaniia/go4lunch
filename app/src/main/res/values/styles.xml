@@ -11,6 +11,10 @@
     <style name="AppTheme.Login" parent="AppTheme">
         <item name="colorPrimaryDark">@color/colortopBarLog</item>
     </style>
+    <style name="AppTheme.Detail" parent="AppTheme">
+        <item name="colorPrimary">@color/colortopBarLog</item>
+        <item name="colorPrimaryDark">@color/colortopBarLog</item>
+    </style>
 
     <style  parent="Theme.AppCompat.Light.DarkActionBar"  name="AppTheme.Chat">
         <item name="colorPrimary">@color/colorPrimary</item>

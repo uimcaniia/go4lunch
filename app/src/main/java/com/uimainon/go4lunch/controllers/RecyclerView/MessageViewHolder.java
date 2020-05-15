@@ -52,12 +52,16 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     //FOR DATA
     private final int colorCurrentUser;
     private final int colorRemoteUser;
+    private final int colorCurrentUserText;
+    private final int colorRemoteUserText;
 
     public MessageViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
-        colorCurrentUser = ContextCompat.getColor(itemView.getContext(), R.color.colorAccent);
-        colorRemoteUser = ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary);
+        colorCurrentUser = ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary);
+        colorRemoteUser = ContextCompat.getColor(itemView.getContext(), R.color.colorChatLigth);
+        colorCurrentUserText = ContextCompat.getColor(itemView.getContext(), R.color.colorBgNavBar);
+        colorRemoteUserText = ContextCompat.getColor(itemView.getContext(), R.color.colorBlurdNavBar);
     }
 
     public void updateWithMessage(Message message, String currentUserId, RequestManager glide){
@@ -66,10 +70,14 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         // Update message TextView
         this.textViewMessage.setText(message.getMessage());
+        this.textViewMessage.setTextColor(isCurrentUser ? colorCurrentUserText : colorRemoteUserText);
         this.textViewMessage.setTextAlignment(isCurrentUser ? View.TEXT_ALIGNMENT_TEXT_END : View.TEXT_ALIGNMENT_TEXT_START);
 
         // Update date TextView
-        if (message.getDateCreated() != null) this.textViewDate.setText(this.convertDateToHour(message.getDateCreated()));
+        if (message.getDateCreated() != null){
+            this.textViewDate.setText(this.convertDateToHour(message.getDateCreated()));
+            this.textViewDate.setTextAlignment(isCurrentUser ? View.TEXT_ALIGNMENT_TEXT_END : View.TEXT_ALIGNMENT_TEXT_START);
+        }
 
         // Update profile picture ImageView
         if (message.getUserSender().getUrlPicture() != null)

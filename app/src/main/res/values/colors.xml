@@ -5,7 +5,7 @@
     <color name="colorAccent">#D81B60</color>
     <color name="colorError">#FF5252</color>
 
-    <color name="colortopBarLog">#83000000</color>
+    <color name="colortopBarLog">#AE000000</color>
     <color name="colorBgDrawerView">#D56A45</color>
 
     <!-- Bottom Navigation View -->
@@ -17,7 +17,9 @@
     <color name="colorChatMedium">#FF5722</color>
     <color name="colorChatDark">#F8440B</color>
 
-    <color name="colorLight">#8D8D8D</color>
+    <color name="colorLight">#B6B6B6</color>
+    <color name="colorshadow">#88737373</color>
+
 
 
 </resources>

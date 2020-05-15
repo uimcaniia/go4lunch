@@ -139,7 +139,8 @@
         android:layout_height="@dimen/size_image_list_restaurant"
         android:layout_marginStart="@dimen/default_large_margin_list_restaurant"
         android:contentDescription="TODO"
-        tools:srcCompat="@drawable/ic_logo_auth" />
+        app:srcCompat="@mipmap/ic_launcher_go"
+        tools:srcCompat="@mipmap/ic_launcher_go" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView   xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -80,79 +84,88 @@
             app:layout_constraintTop_toBottomOf="@+id/contain_info_user" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/contain_info_nortification"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title_notification"
-            android:id="@+id/contain_info_nortification"
-            android:orientation="vertical">
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_notification">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/setting_subtitle"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginVertical="@dimen/setting_subtitle"
+                android:text="Choise your day"
                 android:textAlignment="textStart"
                 android:textSize="20sp"
-                android:text="Choise your day"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/contain_info_user" />
+
             <androidx.appcompat.widget.AppCompatCheckBox
-                android:layout_width="wrap_content"
                 android:id="@+id/notification_monday"
-                android:text="Monday"
-                android:layout_height="wrap_content">
-            </androidx.appcompat.widget.AppCompatCheckBox>
-            <androidx.appcompat.widget.AppCompatCheckBox
                 android:layout_width="wrap_content"
-                android:text="Tuesday"
+                android:layout_marginHorizontal="@dimen/setting_subtitle"
+                android:layout_height="wrap_content"
+                android:text="Monday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/notification_tuesday"
-                android:layout_height="wrap_content">
-            </androidx.appcompat.widget.AppCompatCheckBox>
-            <androidx.appcompat.widget.AppCompatCheckBox
                 android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/setting_subtitle"
+                android:layout_height="wrap_content"
+                android:text="Tuesday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/notification_wednesday"
-                android:text="Wednesday"
-                android:layout_height="wrap_content">
-            </androidx.appcompat.widget.AppCompatCheckBox>
-            <androidx.appcompat.widget.AppCompatCheckBox
                 android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/setting_subtitle"
+                android:layout_height="wrap_content"
+                android:text="Wednesday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/notification_thursday"
-                android:text="Thursday"
-                android:layout_height="wrap_content">
-            </androidx.appcompat.widget.AppCompatCheckBox>
-            <androidx.appcompat.widget.AppCompatCheckBox
                 android:layout_width="wrap_content"
+                android:layout_marginHorizontal="@dimen/setting_subtitle"
+                android:layout_height="wrap_content"
+                android:text="Thursday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/notification_friday"
-                android:text="Friday"
-                android:layout_height="wrap_content">
-            </androidx.appcompat.widget.AppCompatCheckBox>
-            <androidx.appcompat.widget.AppCompatCheckBox
+                android:layout_marginHorizontal="@dimen/setting_subtitle"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Friday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/notification_saturday"
-                android:text="Saturday"
-                android:layout_height="wrap_content">
-            </androidx.appcompat.widget.AppCompatCheckBox>
-            <androidx.appcompat.widget.AppCompatCheckBox
+                android:layout_marginHorizontal="@dimen/setting_subtitle"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saturday"></androidx.appcompat.widget.AppCompatCheckBox>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/notification_sunday"
-                android:text="Sunday"
-                android:layout_height="wrap_content">
-            </androidx.appcompat.widget.AppCompatCheckBox>
+                android:layout_marginHorizontal="@dimen/setting_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sunday"></androidx.appcompat.widget.AppCompatCheckBox>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/setting_subtitle"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginVertical="@dimen/setting_subtitle"
+                android:text="Choise hour for receive"
                 android:textAlignment="textStart"
                 android:textSize="20sp"
-                android:text="Choise hour for receive"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/contain_info_user" />
@@ -167,19 +180,37 @@
                 android:timePickerMode="spinner" />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <!--        <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/btn_valid_preference"
+                    style="@style/Widget.MaterialComponents.FloatingActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:clickable="false"
+                    android:padding="2dp"
+                    app:fabSize="normal"
+                    app:fab_colorNormal="#FAF7F7"
+                    android:scaleType="center"
+                    app:fab_icon="@drawable/ic_green_check" />-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/btn_valid_preference"
             style="@style/Widget.MaterialComponents.FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:clickable="false"
+            android:layout_gravity="end"
             android:padding="2dp"
             app:fabSize="normal"
+            android:layout_margin="16dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
             app:fab_colorNormal="#FAF7F7"
             android:scaleType="center"
             app:fab_icon="@drawable/ic_green_check" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</ScrollView>
+
+
+</RelativeLayout>

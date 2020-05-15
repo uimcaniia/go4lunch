@@ -33,6 +33,7 @@ public class SettingFragment extends Fragment {
     private  TimePicker mTimepicker;
     private String idUser;
     private Button mButtonDeleteAccount;
+/*    private MyService myService;*/
 
     com.getbase.floatingactionbutton.FloatingActionButton mAddButton;
 
@@ -90,7 +91,6 @@ public class SettingFragment extends Fragment {
         mButtonDeleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 new AlertDialog.Builder(getContext())
                         .setMessage(R.string.popup_message_confirmation_delete_account)
                         .setPositiveButton(R.string.popup_message_choice_yes, new DialogInterface.OnClickListener() {
@@ -164,7 +164,7 @@ public class SettingFragment extends Fragment {
                 }else{
                     PreferenceHelper.updatePreferenceNotification("sunday", idUser, 0);
                 }
-
+                ((ProfileActivity) Objects.requireNonNull(getActivity())).configurePreferenceUser();
             }
         });
     }

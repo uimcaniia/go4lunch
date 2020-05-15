@@ -18,7 +18,7 @@
         app:layout_constraintVertical_bias="0.0"
         android:text="scarlette is joining"
         android:textStyle="bold"
-        android:paddingStart="@dimen/default_large_margin_chat"
+        android:padding="@dimen/default_large_margin"
         android:textSize="@dimen/default_text_size"
         android:contentDescription="@string/scarlette_is_joining"/>
     <TextView

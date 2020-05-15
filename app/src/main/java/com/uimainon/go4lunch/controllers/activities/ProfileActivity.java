@@ -1,9 +1,9 @@
 package com.uimainon.go4lunch.controllers.activities;
 
-import android.content.BroadcastReceiver;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +23,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -52,13 +51,14 @@ import com.uimainon.go4lunch.controllers.fragments.ListPeople;
 import com.uimainon.go4lunch.controllers.fragments.ListRestaurants;
 import com.uimainon.go4lunch.controllers.fragments.MapViewFragment;
 import com.uimainon.go4lunch.controllers.fragments.SettingFragment;
-import com.uimainon.go4lunch.controllers.viewModels.MainViewModel;
 import com.uimainon.go4lunch.models.Preference;
 import com.uimainon.go4lunch.models.User;
 import com.uimainon.go4lunch.models.Vote;
-import com.uimainon.go4lunch.service.MyService;
+import com.uimainon.go4lunch.service.DateService;
+import com.uimainon.go4lunch.service.Notification;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -110,7 +110,20 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     private int fridayPref = 1;
     private int saturdayPref = 0;
     private int sundayPref = 0;
-    private MainViewModel viewModel;
+    private Intent serviceIntent;
+/*    private MyService myService;*/
+
+    private  DateService mDate = null;
+    private String week;
+/*    private String weekPref;*/
+    private int nbrWeek;
+    private int goodHourInFrance;
+    private int minute;
+    private int prefOfDay = 0; // oui ou non si alarm aujourd'hui
+/*    private int hourNow;*/
+    private PlacesClient placesClient;
+    private Preference preferenceUser;
+
     Context ctx;
     public Context getCtx() {
         return ctx;
@@ -119,62 +132,50 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.configureViewModel(); // configure viewModel
-
         this.latitudeUser = 0.0;
         this.longitudeUser = 0.0;
         ctx = this;
 
+        try {
+            this.mDate = new DateService();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.week= this.mDate.giveTheDayOfTheWeek(this.mDate.givedayOfWeek());
+        this.nbrWeek = mDate.givedayOfWeek();
+        this.week = mDate.giveTheDayOfTheWeek(this.nbrWeek);
+        this.minute = mDate.giveMinute();
+        this.goodHourInFrance = mDate.giveHour();
+
+        if (!Places.isInitialized()) {
+            String gApiKey = getString(R.string.google_maps_key);
+            Places.initialize(getApplicationContext(), gApiKey);
+        }
+        this.placesClient = Places.createClient(getApplicationContext());
         this.configureToolBar();
         this.configureBottomView();
         this.configureDrawerLayout();
         this.showFirstFragment();
     }
-    private void configureViewModel(){
-        this.viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-    }
 
-    private BroadcastReceiver br = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateGUI(intent); // or whatever method used to update your GUI fields
-        }
-    };
     @Override
     public void onPause() {
         super.onPause();
-        unregisterReceiver(br);
-        System.out.println("Unregistered broacast receiver");
     }
 
     @Override
     public void onStop() {
-        try {
-            unregisterReceiver(br);
-        } catch (Exception e) {
-            // Receiver was probably already stopped in onPause()
-        }
         super.onStop();
     }
     @Override
     public void onDestroy() {
-        stopService(new Intent(this, MyService.class));
-        System.out.println( "Stopped service");
         super.onDestroy();
-    }
-    private void updateGUI(Intent intent) {
-        if (intent.getExtras() != null) {
-            long millisUntilFinished = intent.getLongExtra("countdown", 0);
-            System.out.println("Countdown seconds remaining: " +  millisUntilFinished / 1000);
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        this.updateUIWhenCreating();
-        System.out.println("Registered broacast receiver");
-        // this.configureNavigationView();
+        updateUIWhenCreating();
     }
 
     @Override
@@ -283,12 +284,125 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             super.onBackPressed();
         }
     }
+    public void configureAlarmNotification(long timeInmiliForAlarm, int alarm, long hourNow) { //String idRestaurant
+        StringBuffer passToNotification = new StringBuffer();
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ADDRESS, Place.Field.NAME);
+        FetchPlaceRequest request = FetchPlaceRequest.newInstance(idRestaurant, placeFields);
+        this.placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            passToNotification.append(place.getName() + " - " + place.getAddress());
+            Query query = UserHelper.getAllUser();
+            query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    List<User> listUser = new ArrayList<>();
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            User userModel = document.toObject(User.class);
+                            assert userModel != null;
+                            if (userModel.getIdRestaurant().equals(idRestaurant)) {
+                                listUser.add(userModel);
+                            }
+                        }
+                        if (listUser.size() == 0) {
+                            passToNotification.append(". No worker eat with you");
+                        } else {
+                            passToNotification.append(". Eat with you : ");
+                            for (int i = 0; i < listUser.size(); i++) {
+                                if ((i == (listUser.size() - 1)) && (!listUser.get(i).getUid().equals(idUser))) {
+                                    passToNotification.append(listUser.get(i).getUsername());
+                                }
+                                if ((i == (listUser.size() - 2)) && (!listUser.get(i).getUid().equals(idUser))) {
+                                    passToNotification.append(listUser.get(i).getUsername() + " and ");
+                                }
+                                if ((i != (listUser.size() - 1)) && (i != (listUser.size() - 2)) && (!listUser.get(i).getUid().equals(idUser))) {
+                                    passToNotification.append(listUser.get(i).getUsername() + ", ");
+                                }
+                            }
+                        }
+                        /*System.out.println("send : "+passToNotification);*/
+                        Intent myIntent = new Intent(ctx, Notification.class);
+                        myIntent.putExtra("restaurant", (Serializable) passToNotification);
+                        int ALARM1_ID = 10000;
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                                ctx, ALARM1_ID, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        AlarmManager alarmManager = (AlarmManager)(ctx.getSystemService( Context.ALARM_SERVICE ));
+                        if(alarm > hourNow) {
+                            System.out.println("send : "+passToNotification);
+                            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeInmiliForAlarm, AlarmManager.INTERVAL_DAY, pendingIntent);
+                        }else{
+                            System.out.println("stopp alarm");
+                            alarmManager.cancel(pendingIntent);
+                        }
+                    }
+                }
+            });
+        });
+    }
+    //configure fragment setting avec les préférences des notifications
+    public void configurePreferenceUser(){
+        Task<DocumentSnapshot> queryPref = PreferenceHelper.getPreferenceForUser(idUser);
+        queryPref.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        DateService mDateService = null;
+                        try {
+                            mDateService = new DateService();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        preferenceUser = document.toObject(Preference.class);
+                        int hourNow = mDateService.giveTimeNow();
+                        long timeInmiliForAlarm = mDateService.giveTheAlarmTimeMilli(preferenceUser.getHour(),preferenceUser.getMinute());
+                        prefOfDay = mDateService.giveThepreferenceOfDay(preferenceUser, week); //1 si alarm sinon 0
 
+                        int hourAlarm = ((preferenceUser.getHour()*60)*60) + (preferenceUser.getMinute()*60);
+         /*               System.out.println( "hourAlarm => "+ hourAlarm+ " / hourNow => "+hourNow);*/
+                      /*  AlarmManager alarmManager = (AlarmManager)(ctx.getSystemService( Context.ALARM_SERVICE ));*/
+                        if((!idRestaurant.equals("null")) && (prefOfDay == 1)){ // && (hourAlarm > hourNow)
+                            configureAlarmNotification(timeInmiliForAlarm, hourAlarm, hourNow);//idRestaurant
+                        }
+                    } else {
+                        System.out.println( "No such document Pref");
+                        PreferenceHelper.createPreference(mondayPref, tuesdayPref, wednesdayPref, thursdayPref, fridayPref,saturdayPref, sundayPref, hourPref, minutePref ,idUser);
+                        preferenceUser = new Preference(mondayPref, tuesdayPref, wednesdayPref, thursdayPref, fridayPref,saturdayPref, sundayPref, hourPref, minutePref ,idUser);
+                    }
+                } else {
+                    System.out.println("get failed pref");
+                }
+            }
+        });
+    }
+
+    private void configureProfilUser(String idUser) {
+        Task<DocumentSnapshot> query = UserHelper.getUser(idUser);
+        query.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        User userConnect = document.toObject(User.class);
+                        idRestaurant = userConnect.getIdRestaurant();
+                        configureNavigationView();
+                        configurePreferenceUser(); //, idRestaurant
+                    } else {
+                        System.out.println( "No such document user");
+                    }
+                } else {
+                    System.out.println("get failed user");
+                }
+            }
+        });
+    }
     // 1 - Update UI when activity is creating
     //Nous avons créé une méthode nommée updateUIWhenCreating() (1) et appelée dans le  onCreate() (2) de l'activité.
     // Cette dernière récupère l'utilisateur actuellement connecté (via la méthode  getCurrentUser()
     // que nous avons précédemment créée) et qui nous retourne un utilisateur FirebaseUser.
-    private void updateUIWhenCreating(){
+    public void updateUIWhenCreating(){
         if (this.getCurrentUser() != null){
             //Get picture URL from Firebase
             if (this.getCurrentUser().getPhotoUrl() != null) {
@@ -297,112 +411,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
             email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
             username = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? getString(R.string.info_no_username_found) : this.getCurrentUser().getDisplayName();
             idUser = this.getCurrentUser().getUid();
-            Task<DocumentSnapshot> query = UserHelper.getUser(idUser);
-            query.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            User userConnect = document.toObject(User.class);
-                            idRestaurant = userConnect.getIdRestaurant();
-                            configureNavigationView();
-                            Task<DocumentSnapshot> queryPref = PreferenceHelper.getPreferenceForUser(idUser);
-                            queryPref.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists()) {
-                                            Preference preferenceUser = document.toObject(Preference.class);
-                                            hourPref = preferenceUser.getHour();
-                                            minutePref= preferenceUser.getMinute();
-                                            mondayPref = preferenceUser.getMonday();
-                                            tuesdayPref = preferenceUser.getTuesday();
-                                            wednesdayPref = preferenceUser.getWednesday();
-                                            thursdayPref = preferenceUser.getThursday();
-                                            fridayPref = preferenceUser.getFriday();
-                                            saturdayPref = preferenceUser.getSaturday();
-                                            sundayPref = preferenceUser.getSunday();
-                                            if(!idRestaurant.equals("null")) {
-                                                if (!Places.isInitialized()) {
-                                                    String gApiKey = getString(R.string.google_maps_key);
-                                                    Places.initialize(getApplicationContext(), gApiKey);
-                                                }
-                                                StringBuffer passToNotification = new StringBuffer();
-                                                PlacesClient placesClient = Places.createClient(getApplicationContext());
-                                                List<Place.Field> placeFields = Arrays.asList(Place.Field.ADDRESS, Place.Field.NAME);
-                                                FetchPlaceRequest request = FetchPlaceRequest.newInstance(idRestaurant, placeFields);
-                                                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                                                    Place place = response.getPlace();
-                                                    passToNotification.append(place.getName() + " - " + place.getAddress());
-                                                    Query query = UserHelper.getAllUser();
-                                                    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                            List<User> listUser = new ArrayList<>();
-                                                            if (task.isSuccessful()) {
-                                                                for (DocumentSnapshot document : task.getResult()) {
-                                                                    User userModel = document.toObject(User.class);
-                                                                    assert userModel != null;
-                                                                    if (userModel.getIdRestaurant().equals(idRestaurant)) {
-                                                                        listUser.add(userModel);
-                                                                    }
-                                                                }
-                                                                if (listUser.size() == 0) {
-                                                                    passToNotification.append(". No worker eat with you");
-                                                                } else {
-                                                                    passToNotification.append(". Eat with you : ");
-                                                                    for (int i = 0; i < listUser.size(); i++) {
-                                                                        if ((i == (listUser.size() - 1)) && (!listUser.get(i).getUid().equals(idUser))) {
-                                                                            passToNotification.append(listUser.get(i).getUsername());
-                                                                        }
-                                                                        if ((i == (listUser.size() - 2)) && (!listUser.get(i).getUid().equals(idUser))) {
-                                                                            passToNotification.append(listUser.get(i).getUsername() + " and ");
-                                                                        }
-                                                                        if ((i != (listUser.size() - 1)) && (i != (listUser.size() - 2)) && (!listUser.get(i).getUid().equals(idUser))) {
-                                                                            passToNotification.append(listUser.get(i).getUsername() + ", ");
-                                                                        }
-                                                                    }
-                                                                }
-                                                                Intent mServiceIntent = new Intent(ctx, MyService.class);
-                                                                mServiceIntent.putExtra("messageNotification", (Serializable) passToNotification);
-                                                                //mServiceIntent.putExtra("idUser", idUser);
-                                                                mServiceIntent.putExtra("hourPref", hourPref);
-                                                                mServiceIntent.putExtra("minutePref", minutePref);
-                                                                mServiceIntent.putExtra("mondayPref", mondayPref);
-                                                                mServiceIntent.putExtra("tuesdayPref", tuesdayPref);
-                                                                mServiceIntent.putExtra("wednesdayPref", wednesdayPref);
-                                                                mServiceIntent.putExtra("thursdayPref", thursdayPref);
-                                                                mServiceIntent.putExtra("fridayPref", fridayPref);
-                                                                mServiceIntent.putExtra("saturdayPref", saturdayPref);
-                                                                mServiceIntent.putExtra("sundayPref", sundayPref);
-                                                                ctx.startService(mServiceIntent);
-                                                                registerReceiver(br, new IntentFilter(MyService.COUNTDOWN_BR));
-                                                            }
-                                                        }
-                                                    });
-                                                });
-                                            }
-
-
-                                        } else {
-                                            System.out.println( "No such document Pref");
-                                            PreferenceHelper.createPreference(mondayPref, tuesdayPref, wednesdayPref, thursdayPref, fridayPref,saturdayPref, sundayPref, hourPref, minutePref ,idUser);
-                                        }
-                                    } else {
-                                        System.out.println("get failed pref");
-                                    }
-                                }
-                            });
-                        } else {
-                            System.out.println( "No such document user");
-                        }
-                    } else {
-                        System.out.println("get failed user");
-                    }
-                }
-            });
+            configureProfilUser(idUser);
         }
     }
 
@@ -425,7 +434,7 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
         }
     }
     // 1 - Show first fragment when activity is created
-    private void showFirstFragment(){
+    public void showFirstFragment(){
         Fragment visibleFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (visibleFragment == null){
             // 1.1 - Show News Fragment
@@ -442,18 +451,17 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
         }
         Bundle bundle=new Bundle();
         bundle.putString("idUser", this.idUser);
-        bundle.putInt("hour", this.hourPref);
-        bundle.putInt("minute", this.minutePref);
-        bundle.putInt("monday", this.mondayPref);
-        bundle.putInt("tuesday", this.tuesdayPref);
-        bundle.putInt("wednesday", this.wednesdayPref);
-        bundle.putInt("thursday", this.thursdayPref);
-        bundle.putInt("friday", this.fridayPref);
-        bundle.putInt("saturday", this.saturdayPref);
-        bundle.putInt("sunday", this.sundayPref);
+        bundle.putInt("hour", this.preferenceUser.getHour());
+        bundle.putInt("minute", this.preferenceUser.getMinute());
+        bundle.putInt("monday", this.preferenceUser.getMonday());
+        bundle.putInt("tuesday", this.preferenceUser.getTuesday());
+        bundle.putInt("wednesday", this.preferenceUser.getWednesday());
+        bundle.putInt("thursday", this.preferenceUser.getThursday());
+        bundle.putInt("friday", this.preferenceUser.getFriday());
+        bundle.putInt("saturday", this.preferenceUser.getSaturday());
+        bundle.putInt("sunday", this.preferenceUser.getSunday());
         this.fragmentSetting.setArguments(bundle);
         this.startTransactionFragment(this.fragmentSetting);
-
     }
 
     private void showMapViewFragment(){
@@ -525,7 +533,6 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
                     }
                 }
             });
-           /* */
             AuthUI.getInstance()
                     .delete(this)
                     .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK));
@@ -571,12 +578,5 @@ public class ProfileActivity extends BaseActivity implements NavigationView.OnNa
         } catch (Exception e) {
             e.printStackTrace();
         }
-/*        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        assert imm != null;
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);*/
     }
-/*    @Override
-    protected void onResume() {
-        super.onResume();
-    }*/
 }

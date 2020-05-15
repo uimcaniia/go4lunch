@@ -9,7 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,9 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -42,6 +39,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.uimainon.go4lunch.R;
 import com.uimainon.go4lunch.controllers.RecyclerView.PlacesAutoCompleteAdapter;
 import com.uimainon.go4lunch.controllers.activities.ProfileActivity;
+import com.uimainon.go4lunch.service.DesignConfiguration;
 import com.uimainon.go4lunch.service.NearByPlaces;
 import com.uimainon.go4lunch.service.apiElements.Result;
 
@@ -83,24 +81,19 @@ private MenuItem searchItem;
             Places.initialize(Objects.requireNonNull(getContext()), getString(R.string.google_maps_key), Locale.FRENCH);
         }
         fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
-/*        RectangularBounds bounds = RectangularBounds.newInstance(
-                new LatLng(this.latitudeUser-0.2, this.longitudeUser+0.2),
-                new LatLng(this.latitudeUser+0.2, this.longitudeUser-0.2));*/
-
         // Create Progress Bar.
         myProgress = new ProgressDialog(getContext());
         myProgress.setTitle("Map Loading ...");
         myProgress.setMessage("Please wait...");
         myProgress.setCancelable(true);
-        // Display Progress Bar.
-        myProgress.show();
+        myProgress.show();  // Display Progress Bar.
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map_view, container, false);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frg); //use SuppoprtMapFragment for using in fragment instead of activity  MapFragment = activity   SupportMapFragment = fragment
-        FrameLayout mFram =  getActivity().findViewById(R.id.contain_result_searchview);
+        FrameLayout mFram =  Objects.requireNonNull(getActivity()).findViewById(R.id.contain_result_searchview);
         mRecyclerView = (RecyclerView)mFram.findViewById(R.id.result_searchWidget);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(Objects.requireNonNull(getContext()), DividerItemDecoration.VERTICAL));
@@ -123,27 +116,8 @@ private MenuItem searchItem;
        this.searchItem = menu.findItem(R.id.action_search);
        SearchManager searchManager = (SearchManager)  Objects.requireNonNull(getActivity()).getSystemService(Context.SEARCH_SERVICE);
        sv = (SearchView) searchItem.getActionView();
-
-       sv.setQueryHint(Html.fromHtml("<font color = #8D8D8D>Search restaurant</font>"));
-       sv.setBackgroundColor(getResources().getColor(R.color.colorBgNavBar));
-      // ImageView searchIconTest=sv.findViewById(androidx.appcompat.R.id.edit_query);
-       sv.setIconifiedByDefault(false);
-       sv.setSubmitButtonEnabled(false);
-       assert searchManager != null;
-       sv.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-
-       int searchVoiceId = sv.getContext().getResources().getIdentifier("android:id/search_voice_btn", null, null);
-       int searchId = sv.getContext().getResources().getIdentifier("android:id/search_mag_icon", null, null);
-       int id = sv.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
-
-
-       TextView textView = (TextView) sv.findViewById(id);
-       ImageView searchIconVoice =sv.findViewById(searchVoiceId);
-       ImageView searchIcon =sv.findViewById(searchId);
-
-       textView.setTextColor(getResources().getColor(R.color.colortopBarLog));
-       searchIconVoice.setColorFilter(R.color.colortopBarLog);
-       searchIcon.setColorFilter(R.color.colortopBarLog);
+       DesignConfiguration designConfig = new DesignConfiguration();
+       designConfig. configureSearchViewDesign(sv, searchManager, getActivity(), "<font color = #8D8D8D>Search restaurant</font>");
 
        sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
            @Override
@@ -182,8 +156,7 @@ private MenuItem searchItem;
         currentMarker.showInfoWindow();
         searchItem.collapseActionView();
         ((ProfileActivity) Objects.requireNonNull(getActivity())).hideKeyboardFrom(Objects.requireNonNull(getContext()));
-        //ProfileActivity.hideKeyboardFrom(Objects.requireNonNull(getContext()));//, Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus())
-/*        hideKeyboardFrom(Objects.requireNonNull(getContext()), Objects.requireNonNull(Objects.requireNonNull(getActivity()).getCurrentFocus()));*/
+
         final Handler handler = new Handler();//timer
         handler.postDelayed(new Runnable() {
             @Override
@@ -194,13 +167,10 @@ private MenuItem searchItem;
     }
 
     private void onMyMapReady(GoogleMap googleMap) {
-        // Get Google Map from Fragment.
-        myMap = googleMap;
-        // Set OnMapLoadedCallback Listener.
-        myMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+        myMap = googleMap; // Get Google Map from Fragment.
+        myMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() { // Set OnMapLoadedCallback Listener.
             @Override
             public void onMapLoaded() {
-                // Map loaded. Dismiss this dialog, removing it from the screen.
                 showMyLocation();
             }
         });
@@ -214,8 +184,7 @@ private MenuItem searchItem;
         LocationManager locationManager = (LocationManager)getContext().getSystemService (Context.LOCATION_SERVICE);
         // Criteria to find location provider.
         Criteria criteria = new Criteria();
-        // Returns the name of the provider that best meets the given criteria.
-        // ==> "gps", "network",...
+        // Returns the name of the provider that best meets the given criteria. ==> "gps", "network",...
         String bestProvider = locationManager.getBestProvider(criteria, true);
 
         boolean enabled = locationManager.isProviderEnabled(bestProvider);

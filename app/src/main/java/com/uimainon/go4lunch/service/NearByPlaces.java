@@ -3,13 +3,11 @@ package com.uimainon.go4lunch.service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -118,23 +116,31 @@ public class NearByPlaces implements GoogleMap.OnMarkerClickListener{
             Double longitude = googleNearByPlace.getGeometry().getLocation().getLng();//Double.parseDouble(googleNearByPlace.get("lng"));
             // Add marker to the map
             LatLng latLng = new LatLng(latitude, longitude);
-            if(!googleNearByPlace.getEatingWorker())
+            if(!googleNearByPlace.getEatingWorker()) {
+                BitmapDrawable bitmapdraw=(BitmapDrawable)getDrawable(mContext, R.drawable.marker_red);
+                Bitmap b=bitmapdraw.getBitmap();
+                Bitmap smallMarkerRed = Bitmap.createScaledBitmap(b, 28, 40, false);
                 mMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(name)
-                        .icon(bitmapDescriptorFromVector(mContext, R.drawable.ic_restaurant_red_24px)));
-            else{
+                        .icon(BitmapDescriptorFactory.fromBitmap(smallMarkerRed)));
+                        /*.icon(bitmapDescriptorFromVector(mContext, R.drawable.ic_restaurant_red_24px)));*/
+            }else{
+                BitmapDrawable bitmapdraw=(BitmapDrawable)getDrawable(mContext, R.drawable.marker_green);
+                Bitmap b=bitmapdraw.getBitmap();
+                Bitmap smallMarkerGreen = Bitmap.createScaledBitmap(b, 28, 40, false);
                 mMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(name)
-                        .icon(bitmapDescriptorFromVector(mContext, R.drawable.ic_restaurant_white_24px)));
+                        .icon(BitmapDescriptorFactory.fromBitmap(smallMarkerGreen)));
+                        /*.icon(bitmapDescriptorFromVector(mContext, R.drawable.ic_restaurant_white_24px)));*/
             }
             mMarker.setTag(googleNearByPlace.getPlaceId());
             mMap.setOnMarkerClickListener(this);
         }
     }
 
-
+/*
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
         Drawable background = getDrawable(context, R.drawable.ic_marker_green);
         if(vectorResId == R.drawable.ic_restaurant_red_24px){
@@ -148,7 +154,7 @@ public class NearByPlaces implements GoogleMap.OnMarkerClickListener{
         background.draw(canvas);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }
+    }*/
 
     @Override
     public boolean onMarkerClick(Marker marker) {

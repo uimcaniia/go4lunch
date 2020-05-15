@@ -10,14 +10,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="@dimen/picto_people_size"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
     <TextView
         android:id="@+id/text_toolbar_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:textSize="@dimen/default_title_account"
+        android:textSize="@dimen/nav_title"
         android:textStyle="bold"
+        android:paddingBottom="@dimen/default_large_margin_chat"
         android:textColor="@android:color/white"
         android:text="@string/app_name"/>
     <LinearLayout
@@ -31,7 +33,7 @@
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:src="@mipmap/ic_launcher_round"/>
+            android:src="@mipmap/ic_launcher_round_go"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
